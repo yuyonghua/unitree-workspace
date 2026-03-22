@@ -8,7 +8,7 @@ git clone https://github.com/gcairone/exploration_go2
 git clone https://github.com/guru-narayana/Aliengo_2D_Nav-sim
 git clone https://github.com/jizhang-cmu/autonomy_stack_go2
 git clone https://github.com/machines-in-motion/Go2Py
-git clone https://github.com/Marnonel6/Guide_dog_Unitree_Go1
+# git clone https://github.com/Marnonel6/Guide_dog_Unitree_Go1
 git clone https://github.com/MistyMoonR/tsinghua-Unitree-ROS
 git clone https://github.com/nesl/Go2Controller
 git clone https://github.com/ngmor/unitree_nav
