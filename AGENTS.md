@@ -1,172 +1,213 @@
-# AGENTS.md - Unitree Robot Workspace Guide
+# AGENTS.md - Unitree Go2 Development Workspace
 
-This workspace is a **Unitree Go2 robot development environment** containing official SDKs, community libraries, and user projects spanning Python (WebRTC, ROS2, simulation) and C++ (SDK2, ROS2).
+This workspace contains Unitree robot SDKs and tools for Go2/B2/H1/G1 development.
 
 ## Workspace Structure
 
 ```
 unitree_ws/
-├── docs/              # API documentation (Chinese)
 ├── git/
-│   ├── official/      # Unitree repos: sdk2, ros2, mujoco, rl_gym
-│   └── community/     # Community: webrtc_connect, go2_ros2_sdk
-├── projects/          # User projects (go2_remote_map)
-├── sample/            # Quick-start scripts
+│   ├── official/          # PRIMARY REFERENCE - Official Unitree repositories
+│   │   ├── unitree_sdk2/            # C++ SDK (core)
+│   │   ├── unitree_sdk2_python/     # Python SDK
+│   │   ├── unitree_ros2/            # ROS2 integration
+│   │   ├── unitree_rl_gym/          # RL training (Isaac Gym)
+│   │   ├── unitree_mujoco/          # Mujoco simulation
+│   │   └── ...
+│   └── community/         # Community projects (reference only, last resort)
+├── docs/                  # Self-generated docs (mostly inaccurate)
+│   └── Unitree_Go2_SDK_文档全集.md  # Useful: official docs scraped from website
+├── sample/                # Test scripts (reference only, low value)
+└── projects/              # User projects
 ```
 
-## Build & Run Commands
+**IMPORTANT:** Always reference `git/official/` repositories first. Community repos are for understanding only.
 
-### Python Projects (projects/, sample/)
+## Build Commands
 
+### C++ SDK (unitree_sdk2)
 ```bash
-# Install dependencies
-pip install -r projects/go2_remote_map/requirements.txt
-cd git/community/unitree_webrtc_connect && pip install -e .
-
-# Run project
-cd projects/go2_remote_map && ./start.sh
-./start.sh --mode localsta --ip 10.114.97.227
-./start.sh --mode remote --serial <SERIAL> --user <EMAIL> --pass <PWD>
-
-# System deps for audio
-sudo apt install -y python3-pip portaudio19-dev
+cd git/official/unitree_sdk2
+mkdir build && cd build
+cmake ..
+make                    # Build examples
+sudo make install       # Install to system
+# Or install to custom path:
+cmake .. -DCMAKE_INSTALL_PREFIX=/opt/unitree_robotics
+sudo make install
 ```
 
-### C++ Projects (git/official/)
-
+**Dependencies:**
 ```bash
-# CMake build pattern
-mkdir -p build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
+apt-get install -y cmake g++ build-essential libyaml-cpp-dev \
+    libeigen3-dev libboost-all-dev libspdlog-dev libfmt-dev
 ```
 
-### ROS2 Projects
-
+### Python SDK (unitree_sdk2_python)
 ```bash
+cd git/official/unitree_sdk2_python
+pip3 install -e .
+
+# If cyclonedds not found, build it first:
+git clone https://github.com/eclipse-cyclonedds/cyclonedds -b releases/0.10.x
+cd cyclonedds && mkdir build install && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=../install
+cmake --build . --target install
+export CYCLONEDDS_HOME=~/cyclonedds/install
+pip3 install -e .
+```
+
+**Dependencies:** Python >= 3.8, cyclonedds == 0.10.2, numpy, opencv-python
+
+### ROS2 Package (unitree_ros2)
+```bash
+cd git/official/unitree_ros2
+
+# Install dependencies (example for ROS2 foxy):
+sudo apt install ros-foxy-rmw-cyclonedds-cpp ros-foxy-rosidl-generator-dds-idl
+
+# Build cyclonedds (skip for Humble):
+cd cyclonedds_ws
+colcon build --packages-select cyclonedds
+
+# Source ROS2 and build:
+source /opt/ros/foxy/setup.bash
+colcon build
+
+# Setup environment:
+source ~/unitree_ros2/setup.sh
+```
+
+**Tested:** Ubuntu 20.04 + Foxy, Ubuntu 22.04 + Humble (recommended)
+
+### RL Gym (unitree_rl_gym)
+```bash
+cd git/official/unitree_rl_gym
+
+# Training:
+python legged_gym/scripts/train.py --task=go2
+
+# Play (visualize):
+python legged_gym/scripts/play.py --task=go2
+
+# Sim2Sim (Mujoco):
+python deploy/deploy_mujoco/deploy_mujoco.py g1.yaml
+
+# Sim2Real (physical robot):
+python deploy/deploy_real/deploy_real.py enp3s0 g1.yaml
+```
+
+## Running Examples
+
+### C++ Examples
+```bash
+cd git/official/unitree_sdk2/build
+./bin/go2_sport_client enp3s0    # High-level control
+./bin/go2_low_level enp3s0       # Low-level control
+./bin/publisher                  # DDS publish test
+./bin/subscriber                 # DDS subscribe test
+```
+
+### Python Examples
+```bash
+cd git/official/unitree_sdk2_python
+python3 ./example/helloworld/publisher.py
+python3 ./example/high_level/sportmode_test.py enp2s0
+python3 ./example/low_level/lowlevel_control.py enp2s0
+```
+
+### ROS2 Examples
+```bash
+source ~/unitree_ros2/setup.sh
 cd git/official/unitree_ros2/example
-colcon build --packages-select <package_name>
-source install/setup.bash
-ros2 launch go2_robot_sdk robot.launch.py
+colcon build
+./install/unitree_ros2_example/bin/read_motion_state
+ros2 topic list
+ros2 topic echo /sportmodestate
 ```
 
-### Testing
+## Robot Connection
 
-```bash
-pytest git/official/unitree_mujoco/simulate_python/test/
-./build/test_unitree_sdk2  # C++ tests are compiled executables
-```
+1. Connect computer to robot via Ethernet
+2. Configure network interface (e.g., `enp3s0`):
+   - IP: `192.168.123.99`
+   - Netmask: `255.255.255.0`
+3. Replace `enp3s0` in commands with your interface name
 
-## Python Code Style
+## Code Style
 
-### Imports (enforced pattern)
-```python
-# 1. stdlib
-import asyncio
-from typing import Optional, Dict, Any
+### C++ (Google Style)
+Configured via `.clang-format` and `.clang-tidy` in unitree_ros2:
 
-# 2. third-party (blank line separator)
-import numpy as np
-from fastapi import FastAPI
+- **Style:** Based on Google C++ Style
+- **Classes:** `CamelCase`
+- **Functions:** `lower_case`
+- **Private members:** `lower_case_` (trailing underscore)
+- **Enums:** `CamelCase` type, `UPPER_CASE` constants
+- **Standard:** C++17
 
-# 3. local/project (blank line separator)
-from config import WEB_CONFIG
-from robot import RobotDriver
-```
-
-### Naming Conventions
-- **Classes**: `PascalCase` — `RobotDriver`, `LidarCollector`
-- **Functions/methods**: `snake_case` — `connect_remote()`, `switch_to_normal()`
-- **Constants**: `UPPER_CASE` — `WEB_CONFIG`, `SPEED_LIMITS`
-- **Private methods**: `_leading_underscore` — `_check()`, `_simple_action()`
-
-### Type Hints
-Used on public APIs; internal helpers may omit:
-```python
-async def connect_remote(self, serial: str, username: str, password: str) -> Dict[str, Any]:
-def _extract_points(self, message: dict) -> Optional[np.ndarray]:
-```
-
-### Docstrings
-Triple-quoted, brief descriptions (often Chinese), no enforced format:
-```python
-def move(self, x: float, y: float, yaw: float) -> Dict[str, Any]:
-    """发送持续移动指令 (Move api_id=1008)"""
-```
-
-### Error Handling
-Return structured dicts. Log with `logger.error(f"...: {e}")`:
-```python
-try:
-    await self.conn.connect()
-    return {"success": True, "message": "connected"}
-except Exception as e:
-    logger.error(f"连接失败: {e}")
-    return {"success": False, "message": str(e)}
-```
-
-### Logging
-```python
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-logger = logging.getLogger(__name__)
-```
-
-## C++ Code Style (unitree_sdk2, unitree_ros2)
-
-### Includes
-Order: system headers → third-party → project headers. `<>` for system/third-party, `""` for local:
 ```cpp
-#include <cstdint>
-#include <rclcpp/rclcpp.hpp>
-#include "time_tools.hpp"
+// Example from official SDK
+#include <unitree/robot/channel/channel_publisher.hpp>
+
+using namespace unitree::robot;
+
+class MyController {
+public:
+    void InitChannel();
+private:
+    ChannelPublisher<Msg> publisher_;
+};
 ```
 
-### Header Guards
-Both `#pragma once` and `#ifndef` used. Prefer `#pragma once` for new code.
+### Python
+- Follow PEP 8
+- Use type hints where practical
+- snake_case for functions/variables
 
-### Naming
-- **Classes/structs**: `PascalCase` — `BaseClient`, `BoxPointType`
-- **Methods**: `CamelCase` — `InitRosComm()`, `WaitForConnection()`
-- **Member variables**: `trailing_underscore_` — `node_`, `topic_name_request_`
-- **Macros/constants**: `ALL_CAPS` — `UT_OK`, `UT_ERR_COMMON`
-
-### Error Handling
-Use SDK error codes (UT_* macros). Catch exceptions only at boundaries:
-```cpp
-try {
-    js = nlohmann::json::parse(received_response_->data.data());
-    return UT_ROBOT_SUCCESS;
-} catch (const nlohmann::detail::exception& e) {
-    return UT_ROBOT_TASK_UNKNOWN_ERROR;
-}
-```
-
-## Key Libraries & SDKs
-
-| Library | Location | Purpose |
-|---------|----------|---------|
-| `unitree_webrtc_connect` | `git/community/` | Python WebRTC control for Go2/G1 |
-| `unitree_sdk2` | `git/official/` | C++ DDS-based SDK |
-| `unitree_ros2` | `git/official/` | ROS2 integration packages |
-| `unitree_mujoco` | `git/official/` | MuJoCo simulation environment |
-
-## Common Patterns
-
-### WebRTC Connection (Python)
 ```python
-from unitree_webrtc_connect.webrtc_driver import UnitreeWebRTCConnection, WebRTCConnectionMethod
-from unitree_webrtc_connect.constants import RTC_TOPIC, SPORT_CMD
+# Example from official SDK
+from unitree_sdk2py.core.channel import ChannelPublisher, ChannelFactoryInitialize
 
-conn = UnitreeWebRTCConnection(WebRTCConnectionMethod.LocalSTA, ip="10.114.97.227")
-await conn.connect()
-await conn.datachannel.pub_sub.publish_request_new(
-    RTC_TOPIC["SPORT_MOD"], {"api_id": SPORT_CMD["StandUp"]}
-)
+def main():
+    ChannelFactoryInitialize()
+    pub = ChannelPublisher("topic", UserData)
+    pub.Init()
 ```
 
-### Configuration (Python)
-Module-level `UPPER_CASE` dicts in `config.py`:
-```python
-DEFAULT_REMOTE = {"serial_number": "...", "username": "...", "password": "..."}
-SPEED_LIMITS = {"vx": 1.0, "vy": 0.6, "vz": 1.0}
+## Testing
+
+No formal test suite exists in official repos. Verify by:
+1. Building without errors
+2. Running examples against robot/simulator
+3. Checking DDS communication (publisher/subscriber pair)
+
+## Key Interfaces
+
+### DDS Topics (Go2)
+- `/sportmodestate` - High-level motion state
+- `/lowstate` - Low-level motor/IMU state
+- `/api/sport/request` - High-level control commands
+- `/lowcmd` - Low-level motor commands
+- `/wirelesscontroller` - Remote controller state
+
+### Sport Modes
 ```
+0: idle/stand    1: balanceStand  2: pose
+3: locomotion    5: lieDown       6: jointLock
+7: damping       8: recoveryStand 10: sit
+```
+
+## Documentation Reference
+
+Primary: `git/official/` repository READMEs and code
+Secondary: `docs/Unitree_Go2_SDK_文档全集.md` (official docs, Chinese)
+Official: https://support.unitree.com/home/en/developer
+
+## Common Pitfalls
+
+1. **Cyclonedds version:** Must use 0.10.x for compatibility
+2. **Network interface:** Always specify correct interface name
+3. **ROS2 sourcing:** Source environment before building/running
+4. **Safety:** Use low kp/kd values (kp=10, kd=1) when testing motor control
+5. **Sport mode conflict:** Disable high-level mode via App before low-level control
