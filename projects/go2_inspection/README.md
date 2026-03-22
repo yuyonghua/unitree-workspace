@@ -12,9 +12,16 @@
 
 ## 快速开始
 
-### 安装依赖
+### 环境要求
+
+- Conda (Miniconda 或 Anaconda)
+- Python 3.10
+
+### 创建环境（首次）
 
 ```bash
+conda create -n go2-inspection python=3.10 -y
+conda activate go2-inspection
 cd projects/go2_inspection
 pip install -r requirements.txt
 ```
@@ -22,8 +29,9 @@ pip install -r requirements.txt
 ### 启动系统
 
 ```bash
+conda activate go2-inspection
 ./start.sh
-# 或
+# 或直接运行
 python web/app.py
 ```
 
