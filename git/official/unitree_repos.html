@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unitree 宇树科技 - 官方开源仓库一览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1a1a2e 100%);
+            padding: 80px 20px 60px;
+            text-align: center;
+            border-bottom: 1px solid #1e293b;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(249, 115, 22, 0.06) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-2%, 2%) rotate(1deg); }
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .hero p {
+            font-size: 1.15rem;
+            color: #94a3b8;
+            max-width: 680px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .hero .badge {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 6px 18px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #60a5fa;
+            position: relative;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 20px 80px;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 32px;
+            padding-left: 16px;
+            border-left: 3px solid #3b82f6;
+            color: #f1f5f9;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #f97316);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .card:hover::before { opacity: 1; }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .card-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .icon-blue { background: rgba(59, 130, 246, 0.15); }
+        .icon-orange { background: rgba(249, 115, 22, 0.15); }
+        .icon-green { background: rgba(34, 197, 94, 0.15); }
+        .icon-purple { background: rgba(168, 85, 247, 0.15); }
+        .icon-cyan { background: rgba(6, 182, 212, 0.15); }
+        .icon-pink { background: rgba(236, 72, 153, 0.15); }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+        .card-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .card-features li {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .card-features li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 16px;
+        }
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            font-size: 0.72rem;
+            border-radius: 6px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .tag-lang { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+        .tag-fw { background: rgba(249, 115, 22, 0.12); color: #fb923c; }
+        .tag-robot { background: rgba(34, 197, 94, 0.12); color: #4ade80; }
+        .tag-tool { background: rgba(168, 85, 247, 0.12); color: #c084fc; }
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 8px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 8px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .card-link:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        .robots-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .robot-chip {
+            padding: 2px 10px;
+            font-size: 0.72rem;
+            border-radius: 10px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        .summary-bar {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 24px;
+            text-align: center;
+        }
+        .stat-item .stat-num {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-item .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .ecosystem {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .ecosystem h3 {
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            margin-bottom: 16px;
+        }
+        .eco-flow {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .eco-node {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 100px;
+        }
+        .eco-sdk { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .eco-sim { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+        .eco-rl { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .eco-slam { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .eco-arrow { color: #475569; font-size: 1.2rem; }
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #475569;
+            font-size: 0.8rem;
+            border-top: 1px solid #1e293b;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .grid { grid-template-columns: 1fr; }
+            .summary-bar { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Unitree 宇树科技</h1>
+    <p>官方开源仓库全景概览 — 覆盖 SDK、仿真、强化学习、SLAM、ROS 2 集成的完整机器人开发生态</p>
+    <div class="badge">6 个官方仓库 · 支持 Go2 / B2 / H1 / G1 等全系机器人</div>
+</div>
+
+<div class="container">
+
+    <div class="summary-bar">
+        <div class="stat-item">
+            <div class="stat-num">6</div>
+            <div class="stat-label">官方仓库</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">8+</div>
+            <div class="stat-label">支持机器人</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">3</div>
+            <div class="stat-label">编程语言</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">30+</div>
+            <div class="stat-label">运动行为 API</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">500Hz</div>
+            <div class="stat-label">电机控制频率</div>
+        </div>
+    </div>
+
+    <h2 class="section-title">核心 SDK</h2>
+    <div class="grid">
+
+        <!-- unitree_sdk2 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-blue">⚙️</div>
+                <div>
+                    <div class="card-title">unitree_sdk2</div>
+                    <div class="card-subtitle">C++ 核心开发套件 · v2.0.0</div>
+                </div>
+            </div>
+            <div class="card-desc">
+                Unitree 机器人官方 C++ SDK，基于 CycloneDDS 实现高性能实时通信。提供统一编程接口控制全系四足和人形机器人，支持底层电机控制（500Hz）和高层运动行为调用。
+            </div>
+            <div class="robots-row">
+                <span class="robot-chip">Go2</span>
+                <span class="robot-chip">Go2W</span>
+                <span class="robot-chip">B2</span>
+                <span class="robot-chip">B2W</span>
+                <span class="robot-chip">A2</span>
+                <span class="robot-chip">H1</span>
+                <span class="robot-chip">G1</span>
+                <span class="robot-chip">R1</span>
+            </div>
+            <ul class="card-features">
+                <li>DDS 发布/订阅通信，支持 500Hz 实时控制</li>
+                <li>RPC 客户端/服务端框架，30+ 高层运动行为</li>
+                <li>ROS 2 消息互操作（Twist, Odometry, PointCloud2 等）</li>
+                <li>预编译静态库，支持 aarch64 和 x86_64</li>
+                <li>CRC32 完整性校验，Lease 安全访问控制</li>
+            </ul>
+            <div class="tags">
+                <span class="tag tag-lang">C++17</span>
+                <span class="tag tag-fw">CycloneDDS</span>
+                <span class="tag tag-fw">CMake</span>
+                <span class="tag tag-tool">aarch64 / x86_64</span>
+            </div>
+            <a class="card-link" href="https://github.com/unitreerobotics/unitree_sdk2" target="_blank">🔗 GitHub 仓库</a>
+        </div>
+
+        <!-- unitree_sdk2_python -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-green">🐍</div>
+                <div>
+                    <div class="card-title">unitree_sdk2_python</div>
+                    <div class="card-subtitle">Python SDK · v1.0.1</div>
+                </div>
+            </div>
+            <div class="card-desc">
+                Unitree 官方 Python SDK，与 C++ 版本 API 对齐。提供高层运动控制、底层电机控制和 DDS 通信接口，适合快速原型开发和脚本化控制。
+            </div>
+            <div class="robots-row">
+                <span class="robot-chip">Go2</span>
+                <span class="robot-chip">Go2W</span>
+                <span class="robot-chip">B2</span>
+                <span class="robot-chip">B2W</span>
+                <span class="robot-chip">H1</span>
+                <span class="robot-chip">H1_2</span>
+                <span class="robot-chip">G1</span>
+            </div>
+            <ul class="card-features">
+                <li>Go2 运动客户端：30+ 行为（站立、行走、跳舞、翻跟头等）</li>
+                <li>G1 手臂动作：16+ 预定义手势（握手、拥抱、比心等）</li>
+                <li>G1 语音/TTS：语音合成、语音识别、音量/LED 控制</li>
+                <li>底层 PD 电机控制，RecurrentThread 高精度定时</li>
+                <li>视频流捕获（OpenCV）、游戏手柄支持（pygame）</li>
+            </ul>
+            <div class="tags">
+                <span class="tag tag-lang">Python ≥3.8</span>
+                <span class="tag tag-fw">cyclonedds 0.10.2</span>
+                <span class="tag tag-fw">numpy</span>
+                <span class="tag tag-tool">opencv</span>
+            </div>
+            <a class="card-link" href="https://github.com/unitreerobotics/unitree_sdk2_python" target="_blank">🔗 GitHub 仓库</a>
+        </div>
+    </div>
+
+    <h2 class="section-title">ROS 集成与 SLAM</h2>
+    <div class="grid">
+
+        <!-- unitree_ros2 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-purple">🤖</div>
+                <div>
+                    <div class="card-title">unitree_ros2</div>
+                    <div class="card-subtitle">ROS 2 集成包 · v0.3.0</div>
+                </div>
+            </div>
+            <div class="card-desc">
+                Unitree 官方 ROS 2 集成方案。由于 SDK2 和 ROS 2 共用 CycloneDDS 中间件，可直接用原生 ROS 2 消息与机器人通信，无需额外 SDK 封装层。
+            </div>
+            <div class="robots-row">
+                <span class="robot-chip">Go2</span>
+                <span class="robot-chip">B2</span>
+                <span class="robot-chip">B2W</span>
+                <span class="robot-chip">H1</span>
+                <span class="robot-chip">H1-2</span>
+                <span class="robot-chip">G1</span>
+            </div>
+            <ul class="card-features">
+                <li>3 个消息包：unitree_api、unitree_go (24种)、unitree_hg (11种)</li>
+                <li>18+ 示例程序：底层控制、高层运动、手臂/灵巧手/语音</li>
+                <li>SportClient 封装 30+ 运动 API（站立、行走、翻转等）</li>
+                <li>支持 ROS 2 Foxy (Ubuntu 20.04) 和 Humble (Ubuntu 22.04)</li>
+                <li>Docker 开发环境 + GitHub Actions CI/CD</li>
+            </ul>
+            <div class="tags">
+                <span class="tag tag-lang">C++14/20</span>
+                <span class="tag tag-fw">ROS 2</span>
+                <span class="tag tag-fw">CycloneDDS</span>
+                <span class="tag tag-fw">ament_cmake</span>
+            </div>
+            <a class="card-link" href="https://github.com/unitreerobotics/unitree_ros2" target="_blank">🔗 GitHub 仓库</a>
+        </div>
+
+        <!-- point_lio_unilidar -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-cyan">🗺️</div>
+                <div>
+                    <div class="card-title">point_lio_unilidar</div>
+                    <div class="card-subtitle">3D SLAM 建图与定位</div>
+                </div>
+            </div>
+            <div class="card-desc">
+                适配 Point-LIO 算法用于 Unitree L1/L2 激光雷达，实现高精度实时 3D SLAM。支持逐点状态估计，在剧烈运动下仍能保持鲁棒的定位与建图能力。
+            </div>
+            <div class="robots-row">
+                <span class="robot-chip">Unitree LiDAR L1</span>
+                <span class="robot-chip">Unitree LiDAR L2</span>
+            </div>
+            <ul class="card-features">
+                <li>逐点 ESEKF 状态估计，支持剧烈运动下的鲁棒定位</li>
+                <li>增量 k-d 树管理稠密 3D 点云地图</li>
+                <li>IMU 融合运动畸变补偿</li>
+                <li>自动保存 PCD 点云地图，RViz 实时可视化</li>
+                <li>支持 5+ 种激光雷达类型（AVIA, Velodyne, Ouster, Hesai, Unitree）</li>
+            </ul>
+            <div class="tags">
+                <span class="tag tag-lang">C++14</span>
+                <span class="tag tag-fw">ROS Noetic</span>
+                <span class="tag tag-fw">PCL</span>
+                <span class="tag tag-fw">Eigen3</span>
+                <span class="tag tag-tool">OpenMP</span>
+            </div>
+            <a class="card-link" href="https://github.com/unitreerobotics/point_lio_unilidar" target="_blank">🔗 GitHub 仓库</a>
+        </div>
+    </div>
+
+    <h2 class="section-title">仿真与强化学习</h2>
+    <div class="grid">
+
+        <!-- unitree_mujoco -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-orange">🔬</div>
+                <div>
+                    <div class="card-title">unitree_mujoco</div>
+                    <div class="card-subtitle">MuJoCo 物理仿真器</div>
+                </div>
+            </div>
+            <div class="card-desc">
+                基于 MuJoCo 的 Unitree 机器人仿真平台，实现"代码一次编写，仿真和真机均可运行"的 sim-to-real 开发流程。支持 7 种机器人模型，包含地形生成工具。
+            </div>
+            <div class="robots-row">
+                <span class="robot-chip">Go2</span>
+                <span class="robot-chip">Go2W</span>
+                <span class="robot-chip">B2</span>
+                <span class="robot-chip">B2W</span>
+                <span class="robot-chip">H1</span>
+                <span class="robot-chip">H1-2</span>
+                <span class="robot-chip">G1</span>
+            </div>
+            <ul class="card-features">
+                <li>C++ 和 Python 双版本仿真器</li>
+                <li>DDS 桥接：仿真与真机使用相同通信接口，仅切换 domain_id</li>
+                <li>游戏手柄模拟（Xbox / Switch）</li>
+                <li>地形生成器：台阶、粗糙地面、Perlin 噪声高度场等</li>
+                <li>人形机器人虚拟弹性带辅助站立</li>
+            </ul>
+            <div class="tags">
+                <span class="tag tag-lang">C++17 / Python</span>
+                <span class="tag tag-fw">MuJoCo 3.3.6</span>
+                <span class="tag tag-fw">CycloneDDS</span>
+                <span class="tag tag-tool">GLFW / OpenGL</span>
+            </div>
+            <a class="card-link" href="https://github.com/unitreerobotics/unitree_mujoco" target="_blank">🔗 GitHub 仓库</a>
+        </div>
+
+        <!-- unitree_rl_gym -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-pink">🧠</div>
+                <div>
+                    <div class="card-title">unitree_rl_gym</div>
+                    <div class="card-subtitle">强化学习训练与部署框架</div>
+                </div>
+            </div>
+            <div class="card-desc">
+                完整的四阶段 sim-to-real 强化学习流水线：Isaac Gym 训练 → 仿真验证 → MuJoCo 跨仿真测试 → 真机部署。使用 PPO 算法并行 4096 个环境高效训练。
+            </div>
+            <div class="robots-row">
+                <span class="robot-chip">Go2</span>
+                <span class="robot-chip">H1</span>
+                <span class="robot-chip">H1_2</span>
+                <span class="robot-chip">G1</span>
+            </div>
+            <ul class="card-features">
+                <li>4096 并行环境 GPU 加速训练（NVIDIA Isaac Gym）</li>
+                <li>LSTM 循环神经网络策略（G1/H1_2）</li>
+                <li>步态相位感知 + 非对称 Actor-Critic</li>
+                <li>域随机化：摩擦系数、质量扰动、周期性推力</li>
+                <li>TorchScript JIT 模型导出，C++/Python 真机部署</li>
+            </ul>
+            <div class="tags">
+                <span class="tag tag-lang">Python / C++</span>
+                <span class="tag tag-fw">PyTorch</span>
+                <span class="tag tag-fw">Isaac Gym</span>
+                <span class="tag tag-fw">rsl_rl (PPO)</span>
+                <span class="tag tag-tool">MuJoCo 3.2.3</span>
+            </div>
+            <a class="card-link" href="https://github.com/unitreerobotics/unitree_rl_gym" target="_blank">🔗 GitHub 仓库</a>
+        </div>
+    </div>
+
+    <!-- 生态系统流程图 -->
+    <div class="ecosystem">
+        <h3>🔗 开发生态关系</h3>
+        <div class="eco-flow">
+            <div class="eco-node eco-sdk">unitree_sdk2<br><small>C++ 底层通信</small></div>
+            <span class="eco-arrow">→</span>
+            <div class="eco-node eco-sdk">unitree_sdk2_python<br><small>Python 封装</small></div>
+            <span class="eco-arrow">→</span>
+            <div class="eco-node eco-sim">unitree_ros2<br><small>ROS 2 集成</small></div>
+            <span class="eco-arrow">→</span>
+            <div class="eco-node eco-slam">point_lio_unilidar<br><small>SLAM 建图</small></div>
+        </div>
+        <div class="eco-flow" style="margin-top: 16px;">
+            <div class="eco-node eco-sim">unitree_mujoco<br><small>仿真验证</small></div>
+            <span class="eco-arrow">⇄</span>
+            <div class="eco-node eco-rl">unitree_rl_gym<br><small>RL 训练</small></div>
+            <span class="eco-arrow">→</span>
+            <div class="eco-node eco-sdk">真机部署<br><small>sim-to-real</small></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    <p>数据来源：各仓库 GitHub 页面 · 整理时间：2026-03-21</p>
+    <p>Unitree Robotics (杭州宇树科技有限公司) · BSD 3-Clause / GPLv2 开源许可</p>
+</div>
+
+</body>
+</html>

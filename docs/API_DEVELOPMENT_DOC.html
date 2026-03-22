@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unitree WebRTC Connect API 开发文档</title>
+<style>
+:root {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-code: #0d1b2a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --accent: #0f3460;
+  --accent-hover: #1a4a7a;
+  --link: #4fc3f7;
+  --border: #2a3a5a;
+  --tag-universal: #2196f3;
+  --tag-go2: #4caf50;
+  --tag-g1: #9c27b0;
+  --sidebar-width: 280px;
+  --header-height: 60px;
+  --code-bg: #0d1b2a;
+  --table-header: #1e3a5f;
+  --table-stripe: #1a2744;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-code: #f0f0f0;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --accent: #e3f2fd;
+  --accent-hover: #bbdefb;
+  --link: #1565c0;
+  --border: #dddddd;
+  --code-bg: #f5f5f5;
+  --table-header: #e0e0e0;
+  --table-stripe: #f8f8f8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+/* Header */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-toggle {
+  background: var(--accent);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.theme-toggle:hover {
+  background: var(--accent-hover);
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* Sidebar */
+#sidebar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--header-height));
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 999;
+}
+
+#sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.sidebar-section {
+  padding: 0;
+}
+
+.sidebar-section-title {
+  padding: 10px 20px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+#sidebar a {
+  display: block;
+  padding: 8px 20px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+
+#sidebar a:hover {
+  color: var(--link);
+  background: var(--accent);
+}
+
+#sidebar a.active {
+  color: var(--link);
+  border-left-color: var(--link);
+  font-weight: 600;
+  background: var(--accent);
+}
+
+#sidebar a.sub {
+  padding-left: 35px;
+  font-size: 13px;
+}
+
+/* Main Content */
+main {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  padding: 40px;
+  max-width: 1000px;
+}
+
+section {
+  margin-bottom: 60px;
+  scroll-margin-top: 80px;
+}
+
+h1 { font-size: 32px; margin-bottom: 20px; }
+h2 { font-size: 26px; margin: 40px 0 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+h3 { font-size: 20px; margin: 30px 0 15px; }
+h4 { font-size: 17px; margin: 20px 0 10px; }
+
+p { margin-bottom: 15px; }
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-right: 5px;
+}
+.tag-universal { background: var(--tag-universal); color: white; }
+.tag-go2 { background: var(--tag-go2); color: white; }
+.tag-g1 { background: var(--tag-g1); color: white; }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+thead {
+  background: var(--table-header);
+}
+
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--table-stripe);
+}
+
+code {
+  font-family: "Fira Code", "Consolas", monospace;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Code Blocks */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 15px;
+  overflow-x: auto;
+  margin: 15px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Info Boxes */
+.info-box {
+  background: var(--accent);
+  border-left: 4px solid var(--link);
+  padding: 15px;
+  border-radius: 0 6px 6px 0;
+  margin: 15px 0;
+}
+
+.info-box strong { display: block; margin-bottom: 5px; }
+
+/* Method Signature */
+.method-sig {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-family: "Fira Code", monospace;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+/* TOC */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.toc ul {
+  list-style: none;
+}
+
+.toc li {
+  margin: 5px 0;
+}
+
+.toc a {
+  font-size: 14px;
+}
+
+/* Example Header */
+.example-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 10px;
+}
+
+.example-header .tag {
+  font-size: 12px;
+  padding: 4px 12px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hamburger { display: block; }
+  
+  #sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  
+  #sidebar.open {
+    transform: translateX(0);
+  }
+  
+  main {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 17px; }
+  table { font-size: 12px; }
+  pre { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <button class="hamburger" id="hamburger" aria-label="菜单">☰</button>
+  <h1>Unitree WebRTC Connect API 开发文档</h1>
+  <button class="theme-toggle" id="theme-toggle">🌙 深色模式</button>
+</header>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div class="sidebar-section">
+    <a href="#firmware">支持的固件版本</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">快速上手</div>
+    <a href="#install" class="sub">安装</a>
+    <a href="#connection-methods" class="sub">连接方式</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">通用 API (Go2 + G1)</div>
+    <a href="#connection-api" class="sub">连接 API</a>
+    <a href="#pubsub-core" class="sub">数据通道 Pub/Sub</a>
+    <a href="#motion-switcher" class="sub">运控切换服务</a>
+    <a href="#sport-mod" class="sub">高层运动服务</a>
+    <a href="#ai-sport" class="sub">AI 运动服务</a>
+    <a href="#vui" class="sub">音量灯光服务</a>
+    <a href="#device-state" class="sub">设备状态服务</a>
+    <a href="#obstacles" class="sub">避障服务</a>
+    <a href="#virtual-controller" class="sub">虚拟手柄控制</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Go2 专属 API</div>
+    <a href="#audio" class="sub">音频服务</a>
+    <a href="#video" class="sub">视频服务</a>
+    <a href="#lidar" class="sub">LiDAR 服务</a>
+    <a href="#multicast" class="sub">多播扫描器</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">G1 专属 API</div>
+    <a href="#arm" class="sub">机械臂服务</a>
+    <a href="#gait-mode" class="sub">行走模式切换</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">附录</div>
+    <a href="#constants" class="sub">常量速查表</a>
+    <a href="#errors" class="sub">错误码参考</a>
+    <a href="#examples" class="sub">示例代码集</a>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main>
+
+<!-- 1. 固件版本 -->
+<section id="firmware">
+<h1>Unitree WebRTC Connect API 开发文档</h1>
+
+<div class="info-box">
+  <strong>版本信息</strong>
+  基于 <code>unitree_webrtc_connect</code> v2.0.4 — Python WebRTC 驱动，支持 Unitree Go2 和 G1 机器人
+</div>
+
+<h2>1. 支持的固件版本</h2>
+
+<p>在使用前请确认您的机器人固件版本兼容性。</p>
+
+<table>
+  <thead><tr><th>机型</th><th>固件版本</th><th>备注</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Go2</strong></td><td>1.1.x 系列: 1.1.1 – 1.1.11</td><td>最新可用</td></tr>
+    <tr><td><strong>Go2</strong></td><td>1.0.x 系列: 1.0.19 – 1.0.25</td><td></td></tr>
+    <tr><td><strong>G1</strong></td><td>1.4.0</td><td>最新可用</td></tr>
+  </tbody>
+</table>
+
+<p>支持机型: Go2 AIR / PRO / EDU, G1 AIR / EDU</p>
+</section>
+
+<!-- 2. 快速上手 -->
+<section id="install">
+<h2>2. 快速上手</h2>
+
+<h3 id="install">2.1 安装</h3>
+
+<pre><code># 推荐方式 (pip)
+sudo apt update
+sudo apt install -y python3-pip portaudio19-dev
+pip install unitree_webrtc_connect
+
+# 手动安装
+git clone https://github.com/legion1581/unitree_webrtc_connect.git
+cd unitree_webrtc_connect
+pip install -e .</code></pre>
+
+<h3 id="connection-methods">2.2 连接方式</h3>
+
+<p>支持三种连接方式:</p>
+
+<pre><code>import asyncio
+from unitree_webrtc_connect.webrtc_driver import UnitreeWebRTCConnection
+from unitree_webrtc_connect.constants import WebRTCConnectionMethod
+
+# 方式1: AP模式 — 直连机器人热点 (机器人IP固定为 192.168.12.1)
+conn = UnitreeWebRTCConnection(WebRTCConnectionMethod.LocalAP)
+
+# 方式2: STA模式 — 局域网连接 (机器人和客户端在同一局域网)
+conn = UnitreeWebRTCConnection(WebRTCConnectionMethod.LocalSTA, ip="192.168.8.181")
+# 或通过序列号自动发现IP
+conn = UnitreeWebRTCConnection(WebRTCConnectionMethod.LocalSTA, serialNumber="B42D2000XXXXXXXX")
+
+# 方式3: 远程模式 — 通过Unitree TURN服务器远程连接
+conn = UnitreeWebRTCConnection(
+    WebRTCConnectionMethod.Remote,
+    serialNumber="B42D2000XXXXXXXX",
+    username="email@gmail.com",
+    password="pass"
+)
+
+await conn.connect()</code></pre>
+</section>
+
+<!-- 3. 通用 API -->
+<section id="connection-api">
+<h2>3. 通用 API（Go2 + G1）</h2>
+
+<h3>3.1 连接 API (UnitreeWebRTCConnection) <span class="tag tag-universal">通用</span></h3>
+
+<h4>类定义</h4>
+<div class="method-sig">UnitreeWebRTCConnection(connectionMethod, serialNumber=None, ip=None, username=None, password=None)</div>
+
+<h4>构造参数</h4>
+<table>
+  <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>connectionMethod</code></td><td><code>WebRTCConnectionMethod</code></td><td>连接方式: <code>LocalAP</code>, <code>LocalSTA</code>, <code>Remote</code></td></tr>
+    <tr><td><code>serialNumber</code></td><td><code>str</code></td><td>机器人序列号 (Remote模式必填, LocalSTA可选)</td></tr>
+    <tr><td><code>ip</code></td><td><code>str</code></td><td>机器人IP地址 (LocalSTA模式推荐)</td></tr>
+    <tr><td><code>username</code></td><td><code>str</code></td><td>Unitree账号邮箱 (Remote模式必填)</td></tr>
+    <tr><td><code>password</code></td><td><code>str</code></td><td>Unitree账号密码 (Remote模式必填)</td></tr>
+  </tbody>
+</table>
+
+<h4>方法</h4>
+<table>
+  <thead><tr><th>方法</th><th>返回值</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>await conn.connect()</code></td><td><code>None</code></td><td>建立WebRTC连接</td></tr>
+    <tr><td><code>await conn.disconnect()</code></td><td><code>None</code></td><td>断开连接</td></tr>
+    <tr><td><code>await conn.reconnect()</code></td><td><code>None</code></td><td>先断开再重连</td></tr>
+  </tbody>
+</table>
+
+<h4>属性</h4>
+<table>
+  <thead><tr><th>属性</th><th>类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>conn.isConnected</code></td><td><code>bool</code></td><td>是否已连接</td></tr>
+    <tr><td><code>conn.pc</code></td><td><code>RTCPeerConnection</code></td><td>WebRTC对等连接对象</td></tr>
+    <tr><td><code>conn.datachannel</code></td><td><code>WebRTCDataChannel</code></td><td>数据通道对象</td></tr>
+    <tr><td><code>conn.audio</code></td><td><code>WebRTCAudioChannel</code></td><td>音频通道 (仅Go2)</td></tr>
+    <tr><td><code>conn.video</code></td><td><code>WebRTCVideoChannel</code></td><td>视频通道 (仅Go2)</td></tr>
+  </tbody>
+</table>
+
+<h4>完整示例</h4>
+<pre><code>import asyncio
+from unitree_webrtc_connect.webrtc_driver import UnitreeWebRTCConnection
+from unitree_webrtc_connect.constants import WebRTCConnectionMethod
+
+async def main():
+    conn = UnitreeWebRTCConnection(WebRTCConnectionMethod.LocalSTA, ip="192.168.8.181")
+    await conn.connect()
+    print(f"已连接: {conn.isConnected}")
+    # ... 使用API ...
+    await conn.disconnect()
+
+asyncio.run(main())</code></pre>
+
+<!-- Pub/Sub 核心 -->
+<h3 id="pubsub-core">3.2 数据通道 Pub/Sub 核心 <span class="tag tag-universal">通用</span></h3>
+
+<p>通过 <code>conn.datachannel.pub_sub</code> 访问发布/订阅功能。</p>
+
+<h4>publish_request_new</h4>
+<p>发送服务请求并等待响应（用于绝大多数服务调用）。</p>
+<div class="method-sig">response = await pub_sub.publish_request_new(topic, options)</div>
+
+<table>
+  <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>topic</code></td><td><code>str</code></td><td>是</td><td>服务主题，如 <code>RTC_TOPIC["SPORT_MOD"]</code></td></tr>
+    <tr><td><code>options</code></td><td><code>dict</code></td><td>是</td><td>请求选项</td></tr>
+    <tr><td><code>options["api_id"]</code></td><td><code>int</code></td><td>是</td><td>API ID，如 <code>SPORT_CMD["Hello"]</code></td></tr>
+    <tr><td><code>options["parameter"]</code></td><td><code>dict/str</code></td><td>否</td><td>请求参数</td></tr>
+    <tr><td><code>options["priority"]</code></td><td><code>int</code></td><td>否</td><td>优先级</td></tr>
+  </tbody>
+</table>
+
+<h4>其他方法</h4>
+<table>
+  <thead><tr><th>方法</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>pub_sub.subscribe(topic, callback)</code></td><td>订阅主题数据，回调: <code>callback(message)</code></td></tr>
+    <tr><td><code>pub_sub.publish_without_callback(topic, data)</code></td><td>发送消息但不等待响应（虚拟手柄等）</td></tr>
+    <tr><td><code>pub_sub.unsubscribe(topic)</code></td><td>取消订阅</td></tr>
+  </tbody>
+</table>
+
+<!-- 运控切换服务 -->
+<h3 id="motion-switcher">3.3 运控切换服务 (MOTION_SWITCHER) <span class="tag tag-universal">通用</span></h3>
+
+<p>对应官方 SDK 05-06 运控切换服务接口</p>
+<p><strong>Topic</strong>: <code>rt/api/motion_switcher/request</code></p>
+
+<p>在执行运动命令前，需先确认当前运动模式。<code>normal</code> 模式用于高层运动和AI运动，<code>ai</code> 模式用于特殊动作（倒立等）。</p>
+
+<table>
+  <thead><tr><th>api_id</th><th>功能</th><th>参数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>1001</td><td>查询当前模式</td><td>无</td><td>返回 <code>{"name": "normal"}</code> 或 <code>{"name": "ai"}</code></td></tr>
+    <tr><td>1002</td><td>切换模式</td><td><code>{"name": "normal"}</code> 或 <code>{"name": "ai"}</code></td><td>切换后需等待几秒</td></tr>
+  </tbody>
+</table>
+
+<pre><code>import json
+from unitree_webrtc_connect.constants import RTC_TOPIC
+
+# 查询当前模式
+response = await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["MOTION_SWITCHER"],
+    {"api_id": 1001}
+)
+if response['data']['header']['status']['code'] == 0:
+    data = json.loads(response['data']['data'])
+    print(f"当前模式: {data['name']}")
+
+# 切换到 normal 模式
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["MOTION_SWITCHER"],
+    {"api_id": 1002, "parameter": {"name": "normal"}}
+)
+await asyncio.sleep(5)
+
+# 切换到 ai 模式
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["MOTION_SWITCHER"],
+    {"api_id": 1002, "parameter": {"name": "ai"}}
+)
+await asyncio.sleep(10)</code></pre>
+
+<!-- 高层运动服务 -->
+<h3 id="sport-mod">3.4 高层运动服务 (SPORT_MOD) <span class="tag tag-universal">通用</span></h3>
+
+<p>对应官方 SDK 05-07 高层运动服务接口</p>
+<p><strong>Topic</strong>: <code>rt/api/sport/request</code></p>
+
+<p>所有运动命令通过 <code>publish_request_new</code> 发送。</p>
+
+<h4>基础动作</h4>
+<table>
+  <thead><tr><th>命令</th><th>api_id</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>Damp</td><td>1001</td><td>阻尼模式</td></tr>
+    <tr><td>BalanceStand</td><td>1002</td><td>平衡站立</td></tr>
+    <tr><td>StopMove</td><td>1003</td><td>停止移动</td></tr>
+    <tr><td>StandUp</td><td>1004</td><td>站起</td></tr>
+    <tr><td>StandDown</td><td>1005</td><td>趴下</td></tr>
+    <tr><td>RecoveryStand</td><td>1006</td><td>恢复站立</td></tr>
+    <tr><td>Sit</td><td>1009</td><td>坐下</td></tr>
+    <tr><td>RiseSit</td><td>1010</td><td>从坐姿站起</td></tr>
+  </tbody>
+</table>
+
+<h4>移动控制</h4>
+<table>
+  <thead><tr><th>命令</th><th>api_id</th><th>参数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Move</strong></td><td>1008</td><td><code>{"x": float, "y": float, "z": float}</code></td><td><strong>持续移动</strong> — x:前后(正=前), y:左右(正=左), z:旋转(正=逆时针)</td></tr>
+  </tbody>
+</table>
+
+<h4>特技动作</h4>
+<table>
+  <thead><tr><th>命令</th><th>api_id</th><th>参数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>Hello</td><td>1016</td><td>无</td><td>招手</td></tr>
+    <tr><td>Dance1 / Dance2</td><td>1022/1023</td><td>无</td><td>跳舞</td></tr>
+    <tr><td>Wallow</td><td>1021</td><td>无</td><td>打滚</td></tr>
+    <tr><td>FingerHeart</td><td>1036</td><td>无</td><td>比心</td></tr>
+    <tr><td>FrontFlip</td><td>1030</td><td><code>{"data": True}</code></td><td>前空翻</td></tr>
+    <tr><td>BackFlip</td><td>1044</td><td><code>{"data": True}</code></td><td>后空翻</td></tr>
+    <tr><td>LeftFlip</td><td>1042</td><td><code>{"data": True}</code></td><td>左空翻</td></tr>
+    <tr><td>RightFlip</td><td>1043</td><td><code>{"data": True}</code></td><td>右空翻</td></tr>
+    <tr><td>FrontJump</td><td>1031</td><td>无</td><td>前跳</td></tr>
+    <tr><td>FrontPounce</td><td>1032</td><td>无</td><td>前扑</td></tr>
+  </tbody>
+</table>
+
+<pre><code>from unitree_webrtc_connect.constants import RTC_TOPIC, SPORT_CMD
+
+# 招手
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["SPORT_MOD"],
+    {"api_id": SPORT_CMD["Hello"]}
+)
+
+# 前进
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["SPORT_MOD"],
+    {"api_id": SPORT_CMD["Move"], "parameter": {"x": 0.5, "y": 0, "z": 0}}
+)
+
+# 旋转
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["SPORT_MOD"],
+    {"api_id": SPORT_CMD["Move"], "parameter": {"x": 0, "y": 0, "z": 0.5}}
+)
+
+# 停止
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["SPORT_MOD"],
+    {"api_id": SPORT_CMD["StopMove"]}
+)</code></pre>
+
+<!-- AI 运动服务 -->
+<h3 id="ai-sport">3.5 AI 运动服务 <span class="tag tag-universal">通用</span></h3>
+
+<p>对应官方 SDK 05-08 AI 运动服务接口</p>
+<p>AI 运动需要先切换到 <code>ai</code> 模式，再发送运动命令。</p>
+
+<table>
+  <thead><tr><th>命令</th><th>api_id</th><th>参数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>StandOut</td><td>1039</td><td><code>{"data": True/False}</code></td><td>AI模式切换动作状态</td></tr>
+    <tr><td>Handstand</td><td>1301</td><td>无</td><td>倒立</td></tr>
+    <tr><td>CrossStep</td><td>1302</td><td>无</td><td>交叉步</td></tr>
+    <tr><td>MoonWalk</td><td>1305</td><td>无</td><td>太空步</td></tr>
+  </tbody>
+</table>
+
+<pre><code># 1. 切换到 ai 模式
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["MOTION_SWITCHER"],
+    {"api_id": 1002, "parameter": {"name": "ai"}}
+)
+await asyncio.sleep(10)
+
+# 2. 进入倒立
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["SPORT_MOD"],
+    {"api_id": SPORT_CMD["StandOut"], "parameter": {"data": True}}
+)
+await asyncio.sleep(5)
+
+# 3. 退出倒立
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["SPORT_MOD"],
+    {"api_id": SPORT_CMD["StandOut"], "parameter": {"data": False}}
+)</code></pre>
+
+<!-- 音量灯光服务 -->
+<h3 id="vui">3.6 音量灯光服务 (VUI) <span class="tag tag-universal">通用</span></h3>
+
+<p>对应官方 SDK 05-04 音量灯光服务接口</p>
+<p><strong>Topic</strong>: <code>rt/api/vui/request</code></p>
+
+<table>
+  <thead><tr><th>api_id</th><th>功能</th><th>参数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>1003</td><td>设置音量</td><td><code>{"volume": 0-10}</code></td><td></td></tr>
+    <tr><td>1004</td><td>获取音量</td><td>无</td><td></td></tr>
+    <tr><td>1005</td><td>设置亮度</td><td><code>{"brightness": 0-10}</code></td><td></td></tr>
+    <tr><td>1006</td><td>获取亮度</td><td>无</td><td></td></tr>
+    <tr><td>1007</td><td>设置LED颜色</td><td><code>{"color": str, "time": int, "flash_cycle": int}</code></td><td>flash_cycle可选, 499~time*1000</td></tr>
+  </tbody>
+</table>
+
+<p><strong>VUI_COLOR</strong>: WHITE, RED, YELLOW, BLUE, GREEN, CYAN, PURPLE</p>
+
+<pre><code>from unitree_webrtc_connect.constants import RTC_TOPIC, VUI_COLOR
+
+# 设置音量
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["VUI"],
+    {"api_id": 1003, "parameter": {"volume": 5}}
+)
+
+# LED紫色闪烁
+await conn.datachannel.pub_sub.publish_request_new(
+    RTC_TOPIC["VUI"],
+    {"api_id": 1007, "parameter": {"color": VUI_COLOR.PURPLE, "time": 5, "flash_cycle": 1000}}
+)</code></pre>
+
+<!-- 设备状态服务 -->
+<h3 id="device-state">3.7 设备状态服务 <span class="tag tag-universal">通用</span></h3>
+
+<p>对应官方 SDK 05-05 设备状态服务接口</p>
+
+<table>
+  <thead><tr><th>Topic</th><th>常量</th><th>数据内容</th></tr></thead>
+  <tbody>
+    <tr><td><code>rt/lf/lowstate</code></td><td><code>RTC_TOPIC['LOW_STATE']</code></td><td>imu_state, motor_state[12], bms_state, foot_force, temperature_ntc1, power_v</td></tr>
+    <tr><td><code>rt/multiplestate</code></td><td><code>RTC_TOPIC['MULTIPLE_STATE']</code></td><td>bodyHeight, brightness, footRaiseHeight, obstaclesAvoidSwitch, speedLevel, uwbSwitch, volume</td></tr>
+    <tr><td><code>rt/lf/sportmodestate</code></td><td><code>RTC_TOPIC['LF_SPORT_MOD_STATE']</code></td><td>mode, progress, gait_type, position, body_height, velocity, yaw_speed...</td></tr>
+  </tbody>
+</table>
+
+<pre><code># 订阅低级状态
+def lowstate_callback(message):
+    data = message['data']
+    print(f"姿态: {data['imu_state']['rpy']}")
+    print(f"电池: {data['bms_state']['soc']}%")
+
+conn.datachannel.pub_sub.subscribe(RTC_TOPIC['LOW_STATE'], lowstate_callback)
+
+# 订阅多重状态
+def multiplestate_callback(message):
+    data = json.loads(message['data'])
+    print(f"避障: {'开' if data['obstaclesAvoidSwitch'] else '关'}")
+
+conn.datachannel.pub_sub.subscribe(RTC_TOPIC['MULTIPLE_STATE'], multiplestate_callback)</code></pre>
+
+<!-- 避障服务 -->
+<h3 id="obstacles">3.8 避障服务 (OBSTACLES_AVOID) <span class="tag tag-universal">通用</span></h3>
+
+<p>对应官方 SDK 05-03 避障服务接口</p>
+<p><strong>Topic</strong>: <code>rt/api/obstacles_avoid/request</code></p>
+<p>避障开关状态通过 <code>MULTIPLE_STATE</code> 的 <code>obstaclesAvoidSwitch</code> 字段查看。</p>
+
+<pre><code>def callback(message):
+    data = json.loads(message['data'])
+    avoid_on = data['obstaclesAvoidSwitch']
+    print(f"避障: {'开启' if avoid_on else '关闭'}")
+
+conn.datachannel.pub_sub.subscribe(RTC_TOPIC['MULTIPLE_STATE'], callback)</code></pre>
+
+<!-- 虚拟手柄 -->
+<h3 id="virtual-controller">3.9 虚拟手柄控制 <span class="tag tag-universal">通用</span></h3>
+
+<p><strong>Topic</strong>: <code>rt/wirelesscontroller</code></p>
+
+<table>
+  <thead><tr><th>字段</th><th>范围</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>lx</code></td><td>-1.0 ~ 1.0</td><td>左摇杆X轴</td></tr>
+    <tr><td><code>ly</code></td><td>-1.0 ~ 1.0</td><td>左摇杆Y轴 (正=前)</td></tr>
+    <tr><td><code>rx</code></td><td>-1.0 ~ 1.0</td><td>右摇杆X轴 (正=逆时针)</td></tr>
+    <tr><td><code>ry</code></td><td>-1.0 ~ 1.0</td><td>右摇杆Y轴</td></tr>
+    <tr><td><code>keys</code></td><td>int</td><td>按键状态, 默认0</td></tr>
+  </tbody>
+</table>
+
+<pre><code># 前进
+conn.datachannel.pub_sub.publish_without_callback(
+    "rt/wirelesscontroller",
+    {"lx": 0.0, "ly": 0.5, "rx": 0.0, "ry": 0.0, "keys": 0}
+)
+await asyncio.sleep(3)
+
+# 旋转
+conn.datachannel.pub_sub.publish_without_callback(
+    "rt/wirelesscontroller",
+    {"lx": 0.0, "ly": 0.0, "rx": 1.0, "ry": 0.0, "keys": 0}
+)
+
+# 停止
+conn.datachannel.pub_sub.publish_without_callback(
+    "rt/wirelesscontroller",
+    {"lx": 0.0, "ly": 0.0, "rx": 0.0, "ry": 0.0, "keys": 0}
+)</code></pre>
+</section>
+
+<!-- 4. Go2 专属 API -->
+<section id="audio">
+<h2>4. Go2 专属 API</h2>
+
+<h3 id="audio">4.1 音频服务 <span class="tag tag-go2">仅 Go2</span></h3>
+
+<p>对应官方 SDK 05-11 多媒体服务接口</p>
+
+<h4>基础音频通道</h4>
+<table>
+  <thead><tr><th>方法</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>conn.audio.switchAudioChannel(True/False)</code></td><td>开启/关闭音频通道</td></tr>
+    <tr><td><code>conn.audio.add_track_callback(callback)</code></td><td>添加音频帧回调 <code>async def callback(frame)</code></td></tr>
+  </tbody>
+</table>
+
+<h4>AudioHub 音频管理</h4>
+<pre><code>from unitree_webrtc_connect.webrtc_audiohub import WebRTCAudioHub
+
+audio_hub = WebRTCAudioHub(conn, logger)
+
+await audio_hub.get_audio_list()              # 获取音频列表
+await audio_hub.play_by_uuid(uuid)            # 按UUID播放
+await audio_hub.pause()                       # 暂停
+await audio_hub.resume()                      # 恢复
+await audio_hub.set_play_mode("list_loop")    # 设置播放模式
+await audio_hub.upload_audio_file("audio.wav") # 上传音频文件
+await audio_hub.enter_megaphone()             # 进入扩音器模式
+await audio_hub.exit_megaphone()              # 退出</code></pre>
+
+<h4>发送音频到机器人扬声器</h4>
+<pre><code>from aiortc.contrib.media import MediaPlayer
+
+# 播放本地MP3
+player = MediaPlayer("audio.mp3")
+conn.pc.addTrack(player.audio)
+
+# 播放网络电台
+player = MediaPlayer("https://nashe1.hostingradio.ru:80/ultra-128.mp3")
+conn.pc.addTrack(player.audio)</code></pre>
+
+<h3 id="video">4.2 视频服务 <span class="tag tag-go2">仅 Go2</span></h3>
+
+<table>
+  <thead><tr><th>方法</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>conn.video.switchVideoChannel(True/False)</code></td><td>开启/关闭视频通道</td></tr>
+    <tr><td><code>conn.video.add_track_callback(callback)</code></td><td>添加视频帧回调</td></tr>
+  </tbody>
+</table>
+
+<pre><code>import cv2
+import numpy as np
+
+async def video_callback(track):
+    while True:
+        frame = await track.recv()
+        img = frame.to_ndarray(format="bgr24")
+        cv2.imshow('Go2 Camera', img)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+conn.video.switchVideoChannel(True)
+conn.video.add_track_callback(video_callback)</code></pre>
+
+<h3 id="lidar">4.3 LiDAR 服务 <span class="tag tag-go2">仅 Go2</span></h3>
+
+<p>对应官方 SDK 05-10 LiDAR 服务接口</p>
+
+<pre><code># 1. 禁用流量节省 (必须)
+await conn.datachannel.disableTrafficSaving(True)
+
+# 2. 设置解码器
+conn.datachannel.set_decoder('libvoxel')  # 或 'native'
+
+# 3. 开启LiDAR
+conn.datachannel.pub_sub.publish_without_callback("rt/utlidar/switch", "on")
+
+# 4. 订阅点云
+def lidar_callback(message):
+    data = message["data"]["data"]
+    print(f"点数: {data['point_count']}")
+
+conn.datachannel.pub_sub.subscribe("rt/utlidar/voxel_map_compressed", lidar_callback)</code></pre>
+
+<p><strong>解码器输出</strong>: libvoxel返回 <code>point_count, face_count, positions, uvs, indices</code>；native返回 <code>points (N×3 numpy)</code></p>
+
+<h3 id="multicast">4.4 多播扫描器 <span class="tag tag-go2">仅 Go2</span></h3>
+
+<pre><code>from unitree_webrtc_connect.multicast_scanner import discover_ip_sn
+
+serial_to_ip = discover_ip_sn(timeout=2)
+# 返回: {"B42D2000XXXXXXXX": "192.168.8.181", ...}</code></pre>
+</section>
+
+<!-- 5. G1 专属 API -->
+<section id="arm">
+<h2>5. G1 专属 API</h2>
+
+<h3 id="arm">5.1 机械臂服务 <span class="tag tag-g1">仅 G1</span></h3>
+
+<p>对应官方 SDK 05-17 D1 机械臂服务接口</p>
+<p><strong>Topic</strong>: <code>rt/api/arm/request</code>, <code>api_id = 7106</code></p>
+
+<table>
+  <thead><tr><th>action_id</th><th>动作</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>12</td><td>左飞吻</td><td>Left Kiss</td></tr>
+    <tr><td>15</td><td>双手举</td><td>Hands Up</td></tr>
+    <tr><td>17</td><td>鼓掌</td><td>Clap</td></tr>
+    <tr><td>18</td><td>击掌</td><td>High Five</td></tr>
+    <tr><td>19</td><td>拥抱</td><td>Hug</td></tr>
+    <tr><td>20/21</td><td>左/右比心</td><td>Arm Heart</td></tr>
+    <tr><td>25/26</td><td>面前挥手/挥手</td><td>Wave</td></tr>
+    <tr><td>27</td><td>握手</td><td>Handshake</td></tr>
+    <tr><td>99</td><td>取消动作</td><td>收回手臂</td></tr>
+  </tbody>
+</table>
+
+<pre><code># 握手
+await conn.datachannel.pub_sub.publish_request_new(
+    "rt/api/arm/request",
+    {"api_id": 7106, "parameter": {"data": 27}}
+)
+await asyncio.sleep(5)
+
+# 取消动作，收回手臂
+await conn.datachannel.pub_sub.publish_request_new(
+    "rt/api/arm/request",
+    {"api_id": 7106, "parameter": {"data": 99}}
+)</code></pre>
+
+<h3 id="gait-mode">5.2 行走模式切换 <span class="tag tag-g1">仅 G1</span></h3>
+
+<p><strong>Topic</strong>: <code>rt/api/sport/request</code>, <code>api_id = 7101</code></p>
+
+<table>
+  <thead><tr><th>data 值</th><th>模式</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>500</td><td>Walk</td><td>行走模式</td></tr>
+    <tr><td>501</td><td>Walk (Control Waist)</td><td>行走（腰部控制）</td></tr>
+    <tr><td>801</td><td>Run</td><td>跑步模式</td></tr>
+  </tbody>
+</table>
+
+<pre><code># 切换到跑步模式
+await conn.datachannel.pub_sub.publish_request_new(
+    "rt/api/sport/request",
+    {"api_id": 7101, "parameter": {"data": 801}}
+)</code></pre>
+</section>
+
+<!-- 6. 常量速查表 -->
+<section id="constants">
+<h2>6. 常量速查表</h2>
+
+<h3>RTC_TOPIC</h3>
+<table>
+  <thead><tr><th>常量</th><th>Topic 值</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>LOW_STATE</code></td><td><code>rt/lf/lowstate</code></td><td>低级状态</td></tr>
+    <tr><td><code>MULTIPLE_STATE</code></td><td><code>rt/multiplestate</code></td><td>多重状态</td></tr>
+    <tr><td><code>SPORT_MOD</code></td><td><code>rt/api/sport/request</code></td><td>运动服务</td></tr>
+    <tr><td><code>LF_SPORT_MOD_STATE</code></td><td><code>rt/lf/sportmodestate</code></td><td>LF运动模式状态</td></tr>
+    <tr><td><code>MOTION_SWITCHER</code></td><td><code>rt/api/motion_switcher/request</code></td><td>运控切换</td></tr>
+    <tr><td><code>VUI</code></td><td><code>rt/api/vui/request</code></td><td>音量灯光</td></tr>
+    <tr><td><code>WIRELESS_CONTROLLER</code></td><td><code>rt/wirelesscontroller</code></td><td>虚拟手柄</td></tr>
+    <tr><td><code>ULIDAR_ARRAY</code></td><td><code>rt/utlidar/voxel_map_compressed</code></td><td>LiDAR点云</td></tr>
+    <tr><td><code>AUDIO_HUB_REQ</code></td><td><code>rt/api/audiohub/request</code></td><td>音频Hub</td></tr>
+    <tr><td><code>ARM_COMMAND</code></td><td><code>rt/arm_Command</code></td><td>机械臂</td></tr>
+  </tbody>
+</table>
+
+<h3>SPORT_CMD (运动命令)</h3>
+<table>
+  <thead><tr><th>常量</th><th>api_id</th><th>常量</th><th>api_id</th></tr></thead>
+  <tbody>
+    <tr><td>Damp</td><td>1001</td><td>Move</td><td>1008</td></tr>
+    <tr><td>BalanceStand</td><td>1002</td><td>Sit</td><td>1009</td></tr>
+    <tr><td>StopMove</td><td>1003</td><td>StandUp</td><td>1004</td></tr>
+    <tr><td>StandDown</td><td>1005</td><td>Hello</td><td>1016</td></tr>
+    <tr><td>Dance1</td><td>1022</td><td>Dance2</td><td>1023</td></tr>
+    <tr><td>FrontFlip</td><td>1030</td><td>BackFlip</td><td>1044</td></tr>
+    <tr><td>StandOut</td><td>1039</td><td>Handstand</td><td>1301</td></tr>
+    <tr><td>MoonWalk</td><td>1305</td><td>Bound</td><td>1304</td></tr>
+  </tbody>
+</table>
+
+<h3>VUI_COLOR</h3>
+<p>WHITE, RED, YELLOW, BLUE, GREEN, CYAN, PURPLE</p>
+
+<h3>DATA_CHANNEL_TYPE</h3>
+<p>VALIDATION, SUBSCRIBE, UNSUBSCRIBE, MSG, REQUEST, RESPONSE, VID, AUD, ERR, HEARTBEAT, RTC_INNER_REQ, ERRORS</p>
+</section>
+
+<!-- 7. 错误码 -->
+<section id="errors">
+<h2>7. 错误码参考</h2>
+
+<table>
+  <thead><tr><th>错误源</th><th>错误码</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="6">100 通信固件</td><td>100_1</td><td>DDS消息超时</td></tr>
+    <tr><td>100_10</td><td>电池通信错误</td></tr>
+    <tr><td>100_20</td><td>运动控制通信异常</td></tr>
+    <tr><td>100_40</td><td>MCU通信错误</td></tr>
+    <tr><td>100_80</td><td>电机通信错误</td></tr>
+    <tr><td>100_2</td><td>分配开关异常</td></tr>
+    <tr><td rowspan="2">200 风扇</td><td>200_1/200_2</td><td>后左/右风扇卡住</td></tr>
+    <tr><td>200_4</td><td>前风扇卡住</td></tr>
+    <tr><td rowspan="4">300 电机</td><td>300_1</td><td>过流</td></tr>
+    <tr><td>300_2</td><td>过压</td></tr>
+    <tr><td>300_4</td><td>驱动器过热</td></tr>
+    <tr><td>300_100</td><td>电机通信中断</td></tr>
+    <tr><td rowspan="2">400 雷达</td><td>400_2</td><td>点云数据异常</td></tr>
+    <tr><td>400_4</td><td>串口数据异常</td></tr>
+    <tr><td rowspan="2">600 运动控制</td><td>600_4</td><td>过热软件保护</td></tr>
+    <tr><td>600_8</td><td>低电量软件保护</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- 8. 示例代码 -->
+<section id="examples">
+<h2>8. 完整示例代码集</h2>
+
+<table>
+  <thead><tr><th>#</th><th>示例</th><th>路径</th><th>机型</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>运动控制 (Hello/Move/AI模式)</td><td><code>examples/go2/data_channel/sportmode/sportmode.py</code></td><td>Go2</td></tr>
+    <tr><td>2</td><td>VUI 灯光音量控制</td><td><code>examples/go2/data_channel/vui/vui.py</code></td><td>Go2</td></tr>
+    <tr><td>3</td><td>低级状态订阅</td><td><code>examples/go2/data_channel/lowstate/lowstate.py</code></td><td>Go2</td></tr>
+    <tr><td>4</td><td>LiDAR 点云流</td><td><code>examples/go2/data_channel/lidar/lidar_stream.py</code></td><td>Go2</td></tr>
+    <tr><td>5</td><td>LiDAR 3D可视化</td><td><code>examples/go2/data_channel/lidar/plot_lidar_stream.py</code></td><td>Go2</td></tr>
+    <tr><td>6</td><td>实时音频接收</td><td><code>examples/go2/audio/live_audio/live_recv_audio.py</code></td><td>Go2</td></tr>
+    <tr><td>7</td><td>AudioHub 音频管理</td><td><code>examples/go2/audio/mp3_player/webrtc_audio_player.py</code></td><td>Go2</td></tr>
+    <tr><td>8</td><td>摄像头视频流</td><td><code>examples/go2/video/camera_stream/display_video_channel.py</code></td><td>Go2</td></tr>
+    <tr><td>9</td><td>保存音频到文件</td><td><code>examples/go2/audio/save_audio/save_audio_to_file.py</code></td><td>Go2</td></tr>
+    <tr><td>10</td><td>网络电台播放</td><td><code>examples/go2/audio/internet_radio/stream_radio.py</code></td><td>Go2</td></tr>
+    <tr><td>11</td><td>G1 机械臂+手柄+行走</td><td><code>examples/g1/data_channel/sport_mode/sportmode.py</code></td><td>G1</td></tr>
+  </tbody>
+</table>
+</section>
+
+<div class="footer">
+  <p>基于 <code>unitree_webrtc_connect</code> v2.0.4 生成</p>
+</div>
+
+</main>
+
+<script>
+// Theme Toggle
+const themeToggle = document.getElementById('theme-toggle');
+const savedTheme = localStorage.getItem('theme') || 'dark';
+document.body.setAttribute('data-theme', savedTheme);
+updateThemeButton(savedTheme);
+
+themeToggle.addEventListener('click', () => {
+  const current = document.body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeButton(next);
+});
+
+function updateThemeButton(theme) {
+  themeToggle.textContent = theme === 'dark' ? '☀️ 浅色模式' : '🌙 深色模式';
+}
+
+// Scroll Spy
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active'));
+      const id = entry.target.id;
+      const link = document.querySelector(`#sidebar a[href="#${id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+
+document.querySelectorAll('section[id]').forEach(section => observer.observe(section));
+
+// Mobile Menu
+const hamburger = document.getElementById('hamburger');
+hamburger.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 900) {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    if (!sidebar.contains(e.target) && !hamburger.contains(e.target) && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+    }
+  }
+});
+</script>
+
+</body>
+</html>

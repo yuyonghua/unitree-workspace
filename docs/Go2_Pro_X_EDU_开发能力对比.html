@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go2 Pro/X/EDU 开发能力对比</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h3 {
+            color: #34495e;
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .tag-warning {
+            background: #f39c12;
+        }
+        
+        .tag-danger {
+            background: #e74c3c;
+        }
+        
+        .tag-success {
+            background: #27ae60;
+        }
+        
+        blockquote {
+            background: #d6eaf8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .success-box {
+            background: #d5f4e6;
+            border-left: 4px solid #27ae60;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .danger-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .device-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .device-card.pro {
+            border-color: #95a5a6;
+        }
+        
+        .device-card.x {
+            border-color: #3498db;
+        }
+        
+        .device-card.edu {
+            border-color: #27ae60;
+        }
+        
+        .device-card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .device-card .price {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .device-card ul {
+            list-style: none;
+            text-align: left;
+            padding: 0;
+        }
+        
+        .device-card li {
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .device-card li:last-child {
+            border-bottom: none;
+        }
+        
+        .device-card .method {
+            margin-top: 15px;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+        }
+        
+        .summary-table th:first-child {
+            width: 150px;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.85rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Go2 Pro/X/EDU 开发能力对比</h1>
+        <p class="subtitle">文档版本：1.0 | 生成日期：2026-03-21</p>
+
+        <section class="content-section">
+            <h2>一、机型概览</h2>
+            
+            <div class="comparison-grid">
+                <div class="device-card pro">
+                    <h4>Pro</h4>
+                    <div class="price">~¥16,500</div>
+                    <ul>
+                        <li>电池：8000mAh (1-2h)</li>
+                        <li>算力模组：❌</li>
+                        <li>深度相机：❌</li>
+                        <li>足端力传感器：❌</li>
+                        <li>拓展坞：❌</li>
+                    </ul>
+                    <div class="method">
+                        <strong>开发方式：</strong><br>
+                        <span class="tag tag-success">WebRTC无线</span>
+                    </div>
+                </div>
+                
+                <div class="device-card x">
+                    <h4>X</h4>
+                    <div class="price">~¥28,999</div>
+                    <ul>
+                        <li>电池：8000mAh (1-2h)</li>
+                        <li>算力模组：❌</li>
+                        <li>深度相机：❌</li>
+                        <li>足端力传感器：⚠️ 扩展</li>
+                        <li>拓展坞：❌</li>
+                    </ul>
+                    <div class="method">
+                        <strong>开发方式：</strong><br>
+                        <span class="tag tag-success">WebRTC无线</span>
+                        <span class="tag">有线SDK</span>
+                    </div>
+                </div>
+                
+                <div class="device-card edu">
+                    <h4>EDU</h4>
+                    <div class="price">~¥50,000+</div>
+                    <ul>
+                        <li>电池：15000mAh (2-4h)</li>
+                        <li>算力模组：⚠️ 选配 Orin</li>
+                        <li>深度相机：✅ D435i</li>
+                        <li>足端力传感器：✅ 标配</li>
+                        <li>拓展坞：✅</li>
+                    </ul>
+                    <div class="method">
+                        <strong>开发方式：</strong><br>
+                        <span class="tag tag-success">WebRTC无线</span>
+                        <span class="tag">有线SDK</span>
+                        <span class="tag tag-warning">有线DDS</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>二、开发方式支持</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>开发方式</th>
+                        <th>Pro</th>
+                        <th>X</th>
+                        <th>EDU</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>官方SDK (有线DDS)</strong></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td>底层控制，需EDU+拓展坞</td>
+                    </tr>
+                    <tr>
+                        <td><strong>官方SDK (有线SDK)</strong></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td>应用层控制</td>
+                    </tr>
+                    <tr>
+                        <td><strong>社区SDK (WebRTC无线)</strong></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td>唯一支持Pro的方式</td>
+                    </tr>
+                    <tr>
+                        <td>APP 控制</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td>官方App</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <blockquote>
+                <strong>官方文档依据：</strong><br>
+                "只有 EDU 以上的版本可以进行开发，其他版本如 PRO 以及 AIR 版本不开放二次开发接口"<br>
+                "unitree_sdk2 目前支持的机器人为 Unitree Go2 EDU 版（包括Go2 X）"<br>
+                "Go2 支持无线开发吗？不支持，Go2 目前只支持有线连接进行开发"
+            </blockquote>
+        </section>
+
+        <section class="content-section">
+            <h2>三、运动控制能力</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>控制能力</th>
+                        <th>Pro<br>(仅WebRTC)</th>
+                        <th>X<br>(SDK+WebRTC)</th>
+                        <th>EDU<br>(全部)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4"><strong>高层运动控制</strong></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ Move/Sit/Dance等</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 步态切换</td>
+                        <td><span class="tag tag-warning">⚠️ 预设</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 姿态控制 (Euler/BodyHeight)</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;└ 速度档位 (SpeedLevel)</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><strong>底层控制</strong></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 12关节直接控制</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅ 有线</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 自定义步态</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅ 有线</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 电机参数(q/dq/tau/kp/kd)</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;└ 控制频率</td>
+                        <td>WebRTC延迟</td>
+                        <td>500Hz (有线)</td>
+                        <td>500Hz</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>四、传感器数据</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>传感器</th>
+                        <th>Pro<br>(仅WebRTC)</th>
+                        <th>X<br>(SDK+WebRTC)</th>
+                        <th>EDU<br>(全部)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4"><strong>头部4D LiDAR</strong></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 数据质量</td>
+                        <td><span class="tag tag-warning">⚠️ 压缩</span></td>
+                        <td>✅有线/⚠️无线</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 数据字段</td>
+                        <td>x,y,z,intensity</td>
+                        <td>有线含ring/time</td>
+                        <td>完整</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;└ 损失程度</td>
+                        <td>60-80%</td>
+                        <td>有线无损/无线60-80%</td>
+                        <td>无损</td>
+                    </tr>
+                    <tr>
+                        <td>外置雷达 (MID-360/XT16)</td>
+                        <td><span class="tag tag-danger">❌ 无硬件</span></td>
+                        <td><span class="tag tag-danger">❌ 无硬件</span></td>
+                        <td><span class="tag tag-warning">⚠️ 需另购</span></td>
+                    </tr>
+                    <tr>
+                        <td>头部相机</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>深度相机 D435i</td>
+                        <td><span class="tag tag-danger">❌ 无硬件</span></td>
+                        <td><span class="tag tag-danger">❌ 无硬件</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>IMU</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>关节状态</td>
+                        <td><span class="tag tag-warning">⚠️ ~1Hz</span></td>
+                        <td>500Hz有线/1Hz无线</td>
+                        <td><span class="tag tag-success">✅ 500Hz</span></td>
+                    </tr>
+                    <tr>
+                        <td>足端力传感器</td>
+                        <td><span class="tag tag-danger">❌ 无硬件</span></td>
+                        <td><span class="tag tag-danger">❌ 无硬件</span></td>
+                        <td><span class="tag tag-success">✅ 有线DDS</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>五、地图与导航</h2>
+            
+            <div class="danger-box">
+                <strong>⚠️ 重要：</strong> 官方SLAM/导航服务接口仅支持带拓展坞和Unitree官方购入激光雷达（MID-360/XT16）版本的EDU机器狗！
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>功能</th>
+                        <th>Pro</th>
+                        <th>X</th>
+                        <th>EDU</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>官方SLAM/导航</strong></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅ 需拓展坞+外置雷达</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>开源SLAM (slam_toolbox)</strong></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>开源导航 (Nav2)</strong></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>六、其他功能</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>功能</th>
+                        <th>Pro</th>
+                        <th>X</th>
+                        <th>EDU</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>避障</td>
+                        <td><span class="tag tag-warning">⚠️ 有限</span></td>
+                        <td>✅ 有线/⚠️无线</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>语音控制</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>灯光控制</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>音频收发</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>多机器人协同</td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                        <td><span class="tag tag-success">✅ WebRTC</span></td>
+                    </tr>
+                    <tr>
+                        <td>视频流</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>七、开发环境要求</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>要求</th>
+                        <th>官方SDK (有线)</th>
+                        <th>社区SDK (WebRTC无线)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>系统</strong></td>
+                        <td>仅 Ubuntu 20.04/22.04</td>
+                        <td>Ubuntu/Windows/Mac</td>
+                    </tr>
+                    <tr>
+                        <td><strong>连接</strong></td>
+                        <td>网线直连</td>
+                        <td>WiFi</td>
+                    </tr>
+                    <tr>
+                        <td><strong>语言</strong></td>
+                        <td>C++/Python</td>
+                        <td>Python/ROS2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>依赖</strong></td>
+                        <td>unitree_sdk2, cyclonedds</td>
+                        <td>aiortc, ROS2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>适用机型</strong></td>
+                        <td>X/EDU</td>
+                        <td>Pro/X/EDU</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>八、数据质量对比</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>数据维度</th>
+                        <th>官方SDK有线</th>
+                        <th>社区SDK WebRTC无线</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3"><strong>LiDAR 点云</strong></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 更新频率</td>
+                        <td>10-20 Hz</td>
+                        <td>~7 Hz</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 每帧点数</td>
+                        <td>20-40万+</td>
+                        <td>最多8万</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;├ 数据字段</td>
+                        <td>x,y,z,intensity,ring,time</td>
+                        <td>仅x,y,z,intensity</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;&nbsp;└ 数据格式</td>
+                        <td>原始3D扫描</td>
+                        <td>体素压缩网格</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关节状态</strong></td>
+                        <td>500 Hz</td>
+                        <td>~1 Hz</td>
+                    </tr>
+                    <tr>
+                        <td><strong>控制延迟</strong></td>
+                        <td>&lt;2ms (有线)</td>
+                        <td>50-200ms (无线)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="highlight-box">
+                <strong>压缩原因：</strong>
+                <ul>
+                    <li>带宽限制：WebRTC无线传输需要降低数据量</li>
+                    <li>体素化：机器人端将点云压缩为体素网格格式</li>
+                    <li>WASM解码限制：解码器缓冲区硬编码为80,000点上限</li>
+                    <li>信息丢失：ring和时间戳在压缩过程中丢失</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>九、各机型推荐开发方案</h2>
+            
+            <h3>Pro 机型</h3>
+            <div class="danger-box">
+                <strong>唯一方案：社区SDK (WebRTC无线)</strong>
+                <ul>
+                    <li>✅ 高层运动控制</li>
+                    <li>✅ 传感器数据 (压缩)</li>
+                    <li>✅ 开源SLAM/导航</li>
+                    <li>✅ 多机器人</li>
+                    <li>❌ 无法底层控制</li>
+                </ul>
+            </div>
+            
+            <h3>X 机型</h3>
+            <div class="highlight-box">
+                <strong>推荐组合：社区SDK无线 + 官方SDK有线</strong>
+                <pre>
+├── 社区SDK无线：
+│   ├── ✅ 便捷开发 (WiFi, 多平台)
+│   ├── ✅ 开源SLAM/导航
+│   └── ✅ 多机器人
+├── 官方SDK有线：
+│   ├── ✅ 底层关节控制
+│   ├── ✅ 自定义步态
+│   ├── ✅ 原始LiDAR数据
+│   └── ✅ 高控制频率 (500Hz)
+└── 两者结合可覆盖大部分开发需求</pre>
+            </div>
+            
+            <h3>EDU 机型</h3>
+            <div class="success-box">
+                <strong>推荐：官方SDK有线 (完整能力)</strong>
+                <pre>
+├── ✅ 全部底层控制
+├── ✅ 足端力传感器
+├── ✅ 官方SLAM/导航 (需拓展坞+外置雷达)
+├── ✅ 深度相机
+└── 补充：社区SDK无线用于便捷开发/多机器人</pre>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>十、总结矩阵</h2>
+            
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>能力维度</th>
+                        <th>Pro无线</th>
+                        <th>X无线</th>
+                        <th>X有线</th>
+                        <th>EDU无线</th>
+                        <th>EDU有线</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>高层运动</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>底层关节</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>自定义步态</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>原始LiDAR</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>足端力</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td>官方SLAM</td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-warning">✅*</span></td>
+                    </tr>
+                    <tr>
+                        <td>开源SLAM</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                    </tr>
+                    <tr>
+                        <td>多机器人</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                    </tr>
+                    <tr>
+                        <td>跨平台</td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                        <td><span class="tag tag-success">✅</span></td>
+                        <td><span class="tag tag-danger">❌</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p style="margin-top: 10px; color: #7f8c8d;">* 需要拓展坞+外置雷达</p>
+        </section>
+
+        <section class="content-section">
+            <h2>架构对比图</h2>
+            
+            <h3>官方SDK (有线DDS)</h3>
+            <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                      官方SDK (有线DDS)                           │
+├─────────────────────────────────────────────────────────────────┤
+│  用户PC ────网线────▶ Go2机载电脑 ────DDS───▶ 底层服务/运控服务   │
+│                        192.168.123.161         ↓                 │
+│                                           12个关节电机 (500Hz)   │
+│                                           足端力传感器           │
+│                                           IMU原始数据            │
+└─────────────────────────────────────────────────────────────────┘</pre>
+            
+            <h3>社区SDK (WebRTC无线)</h3>
+            <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                    社区SDK (WebRTC无线)                          │
+├─────────────────────────────────────────────────────────────────┤
+│  用户PC ────WiFi────▶ Go2 ────WebRTC───▶ 云服务/OTA模块          │
+│        (任意系统)        │                  ↓                    │
+│                         └────数据通道────▶ 压缩体素地图           │
+│                                          高层运动控制API         │
+│                                          视频/音频流             │
+└─────────────────────────────────────────────────────────────────┘</pre>
+        </section>
+
+        <section class="content-section" style="background: #f8f9fa; border: 1px dashed #adb5bd;">
+            <h2>参考文档</h2>
+            <ul>
+                <li>官方文档：<code>Unitree_Go2_SDK_文档全集.md</code></li>
+                <li>社区文档：<code>go2_ros2_sdk_docs.html</code></li>
+                <li>实测文档：<code>go2_webrtc_control_guide.md</code></li>
+            </ul>
+        </section>
+    </div>
+</body>
+</html>
