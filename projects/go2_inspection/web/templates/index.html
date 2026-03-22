@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go2 巡检仿真系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #1a1a2e; color: #eee; }
+        .container { display: flex; height: 100vh; }
+        .left-panel { width: 320px; background: #16213e; padding: 20px; overflow-y: auto; }
+        .main-panel { flex: 1; display: flex; flex-direction: column; }
+        .canvas-container { flex: 1; position: relative; background: #0f0f23; }
+        #threeCanvas { width: 100%; height: 100%; }
+        .bottom-panel { height: 200px; background: #16213e; padding: 10px; display: flex; gap: 10px; }
+        h2 { color: #4cc9f0; margin-bottom: 15px; font-size: 18px; }
+        h3 { color: #f72585; margin: 15px 0 10px; font-size: 14px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .btn-primary { background: #4cc9f0; color: #000; }
+        .btn-success { background: #06d6a0; color: #000; }
+        .btn-danger { background: #ef476f; color: #fff; }
+        .btn-warning { background: #ffd166; color: #000; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .status-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #333; font-size: 13px; }
+        .status-label { color: #888; }
+        .status-value { color: #4cc9f0; font-family: monospace; }
+        .joystick-container { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
+        .joystick { width: 120px; height: 120px; background: #333; border-radius: 50%; position: relative; border: 2px solid #4cc9f0; }
+        .joystick-knob { width: 40px; height: 40px; background: #4cc9f0; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: grab; }
+        .joystick-label { text-align: center; margin-top: 5px; font-size: 12px; color: #888; }
+        #logPanel { flex: 1; background: #0f0f23; border-radius: 4px; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        #mapCanvas { flex: 1; background: #0f0f23; border-radius: 4px; }
+        .log-entry { padding: 2px 0; border-bottom: 1px solid #222; }
+        .log-info { color: #4cc9f0; }
+        .log-warn { color: #ffd166; }
+        .log-error { color: #ef476f; }
+        .map-list { max-height: 150px; overflow-y: auto; background: #0f0f23; border-radius: 4px; padding: 8px; }
+        .map-item { display: flex; justify-content: space-between; padding: 4px 8px; cursor: pointer; border-radius: 3px; font-size: 12px; }
+        .map-item:hover { background: #333; }
+        .map-item.selected { background: #4cc9f0; color: #000; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2>Go2 巡检仿真</h2>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="connectSim()">启动仿真</button>
+                <button class="btn btn-danger" onclick="disconnectSim()">停止仿真</button>
+            </div>
+            <h3>姿态控制</h3>
+            <div class="btn-group">
+                <button class="btn btn-success" onclick="standUp()">站起</button>
+                <button class="btn btn-warning" onclick="standDown()">趴下</button>
+                <button class="btn btn-danger" onclick="stopMove()">停止</button>
+            </div>
+            <h3>建图控制</h3>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="startMapping()">开始建图</button>
+                <button class="btn btn-warning" onclick="stopMapping()">停止建图</button>
+            </div>
+            <div class="btn-group">
+                <input type="text" id="mapName" placeholder="地图名称" value="map_001" style="padding:6px;border-radius:4px;border:1px solid #444;background:#0f0f23;color:#eee;width:120px;">
+                <button class="btn btn-success" onclick="saveMap()">保存地图</button>
+            </div>
+            <h3>地图列表</h3>
+            <div class="map-list" id="mapList"></div>
+            <h3>机器人状态</h3>
+            <div id="statusPanel">
+                <div class="status-item"><span class="status-label">位置 X</span><span class="status-value" id="posX">0.00</span></div>
+                <div class="status-item"><span class="status-label">位置 Y</span><span class="status-value" id="posY">0.00</span></div>
+                <div class="status-item"><span class="status-label">位置 Z</span><span class="status-value" id="posZ">0.00</span></div>
+                <div class="status-item"><span class="status-label">朝向</span><span class="status-value" id="yaw">0.00</span></div>
+                <div class="status-item"><span class="status-label">速度</span><span class="status-value" id="velocity">0.00</span></div>
+                <div class="status-item"><span class="status-label">仿真时间</span><span class="status-value" id="simTime">0.00</span></div>
+                <div class="status-item"><span class="status-label">建图状态</span><span class="status-value" id="mappingStatus">未激活</span></div>
+            </div>
+        </div>
+        <div class="main-panel">
+            <div class="canvas-container">
+                <canvas id="threeCanvas"></canvas>
+            </div>
+            <div class="bottom-panel">
+                <div id="logPanel"></div>
+                <canvas id="mapCanvas" width="200" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        let ws = null;
+        let cmdInterval = null;
+        let cmd = {vx: 0, vy: 0, yaw: 0};
+        const keys = {};
+
+        function connectWS() {
+            ws = new WebSocket(`ws://${location.host}/ws`);
+            ws.onmessage = (e) => {
+                const msg = JSON.parse(e.data);
+                if (msg.type === "state") updateState(msg);
+            };
+            ws.onclose = () => { log("WebSocket断开", "warn"); setTimeout(connectWS, 2000); };
+            ws.onopen = () => log("WebSocket已连接", "info");
+        }
+
+        function updateState(msg) {
+            const d = msg.data;
+            document.getElementById("posX").textContent = d.position.x.toFixed(3);
+            document.getElementById("posY").textContent = d.position.y.toFixed(3);
+            document.getElementById("posZ").textContent = d.position.z.toFixed(3);
+            document.getElementById("yaw").textContent = (d.yaw || 0).toFixed(3);
+            document.getElementById("velocity").textContent = Math.sqrt(d.velocity.x**2 + d.velocity.y**2).toFixed(3);
+            document.getElementById("simTime").textContent = d.time.toFixed(2);
+            document.getElementById("mappingStatus").textContent = msg.mapping_active ? "建图中" : "未激活";
+            if (msg.lidar && msg.lidar.points) drawMap(msg.lidar.points);
+        }
+
+        function drawMap(points) {
+            const c = document.getElementById("mapCanvas");
+            const ctx = c.getContext("2d");
+            ctx.fillStyle = "#0f0f23";
+            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.fillStyle = "#4cc9f0";
+            const scale = 10;
+            const cx = c.width / 2;
+            const cy = c.height / 2;
+            points.forEach(p => {
+                const x = cx + p[0] * scale;
+                const y = cy - p[1] * scale;
+                ctx.fillRect(x, y, 2, 2);
+            });
+            ctx.fillStyle = "#ef476f";
+            ctx.fillRect(cx - 3, cy - 3, 6, 6);
+        }
+
+        function log(msg, type="info") {
+            const panel = document.getElementById("logPanel");
+            const div = document.createElement("div");
+            div.className = `log-entry log-${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            panel.appendChild(div);
+            panel.scrollTop = panel.scrollHeight;
+        }
+
+        async function api(path, method="POST") {
+            const r = await fetch(`/api/${path}`, {method});
+            const d = await r.json();
+            log(d.message || JSON.stringify(d), d.success ? "info" : "error");
+            return d;
+        }
+
+        function connectSim() { api("connect"); }
+        function disconnectSim() { api("disconnect"); }
+        function standUp() { api("stand_up"); }
+        function standDown() { api("stand_down"); }
+        function stopMove() { api("stop"); }
+        function startMapping() { api("map/start_mapping"); }
+        function stopMapping() { api("map/stop_mapping"); }
+
+        async function saveMap() {
+            const name = document.getElementById("mapName").value;
+            await api(`map/save?name=${name}`);
+            loadMapList();
+        }
+
+        async function loadMapList() {
+            const r = await fetch("/api/map/list");
+            const d = await r.json();
+            if (d.success) {
+                const list = document.getElementById("mapList");
+                list.innerHTML = d.data.map(m => `<div class="map-item" onclick="loadMap('${m.name}')">${m.name}</div>`).join("");
+            }
+        }
+
+        async function loadMap(name) {
+            await api(`map/load/${name}`);
+        }
+
+        function sendMoveCmd() {
+            fetch("/api/move", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(cmd),
+            });
+        }
+
+        document.addEventListener("keydown", (e) => {
+            keys[e.key.toLowerCase()] = true;
+            updateCmd();
+        });
+        document.addEventListener("keyup", (e) => {
+            keys[e.key.toLowerCase()] = false;
+            updateCmd();
+        });
+
+        function updateCmd() {
+            cmd.vx = 0; cmd.vy = 0; cmd.yaw = 0;
+            if (keys["w"]) cmd.vx = 0.5;
+            if (keys["s"]) cmd.vx = -0.5;
+            if (keys["a"]) cmd.vy = 0.5;
+            if (keys["d"]) cmd.vy = -0.5;
+            if (keys["arrowleft"]) cmd.yaw = 0.5;
+            if (keys["arrowright"]) cmd.yaw = -0.5;
+        }
+
+        connectWS();
+        loadMapList();
+        setInterval(sendMoveCmd, 50);
+    </script>
+</body>
+</html>
