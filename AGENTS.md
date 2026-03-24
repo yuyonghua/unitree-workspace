@@ -1,6 +1,6 @@
-# AGENTS.md - Unitree Go2 Development Workspace
+# AGENTS.md - Unitree Robot Development Workspace
 
-This workspace contains Unitree robot SDKs and tools for Go2/B2/H1/G1 development.
+Unitree robot SDKs for Go2/B2/H1/G1/G2/R1/A2 development.
 
 ## Workspace Structure
 
@@ -10,37 +10,32 @@ unitree_ws/
 │   ├── official/          # PRIMARY REFERENCE - Official Unitree repositories
 │   │   ├── unitree_sdk2/            # C++ SDK (core)
 │   │   ├── unitree_sdk2_python/     # Python SDK
-│   │   ├── unitree_ros2/            # ROS2 integration
+│   │   ├── unitree_ros2/            # ROS2 communication package
+│   │   ├── unitree_ros/             # URDF/3D models for all robots
 │   │   ├── unitree_rl_gym/          # RL training (Isaac Gym)
 │   │   ├── unitree_mujoco/          # Mujoco simulation
-│   │   └── ...
+│   │   └── point_lio_unilidar/      # SLAM with 4D Lidar L1
 │   └── community/         # Community projects (reference only, last resort)
 ├── docs/                  # Self-generated docs (mostly inaccurate)
-│   └── Unitree_Go2_SDK_文档全集.md  # Useful: official docs scraped from website
 ├── sample/                # Test scripts (reference only, low value)
 └── projects/              # User projects
 ```
 
-**IMPORTANT:** Always reference `git/official/` repositories first. Community repos are for understanding only.
+**CRITICAL:** Always reference `git/official/` repositories first. Community repos are for understanding only.
 
 ## Build Commands
 
 ### C++ SDK (unitree_sdk2)
 ```bash
-cd git/official/unitree_sdk2
-mkdir build && cd build
-cmake ..
-make                    # Build examples
-sudo make install       # Install to system
-# Or install to custom path:
-cmake .. -DCMAKE_INSTALL_PREFIX=/opt/unitree_robotics
-sudo make install
-```
-
-**Dependencies:**
-```bash
-apt-get install -y cmake g++ build-essential libyaml-cpp-dev \
+# Dependencies
+sudo apt-get install -y cmake g++ build-essential libyaml-cpp-dev \
     libeigen3-dev libboost-all-dev libspdlog-dev libfmt-dev
+
+# Build
+cd git/official/unitree_sdk2
+cmake -Bbuild
+cmake --build build -j$(nproc)
+sudo cmake --install build
 ```
 
 ### Python SDK (unitree_sdk2_python)
@@ -51,8 +46,7 @@ pip3 install -e .
 # If cyclonedds not found, build it first:
 git clone https://github.com/eclipse-cyclonedds/cyclonedds -b releases/0.10.x
 cd cyclonedds && mkdir build install && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../install
-cmake --build . --target install
+cmake .. -DCMAKE_INSTALL_PREFIX=../install && cmake --build . --target install
 export CYCLONEDDS_HOME=~/cyclonedds/install
 pip3 install -e .
 ```
@@ -62,118 +56,68 @@ pip3 install -e .
 ### ROS2 Package (unitree_ros2)
 ```bash
 cd git/official/unitree_ros2
+sudo apt install ros-humble-rmw-cyclonedds-cpp ros-humble-rosidl-generator-dds-idl
 
-# Install dependencies (example for ROS2 foxy):
-sudo apt install ros-foxy-rmw-cyclonedds-cpp ros-foxy-rosidl-generator-dds-idl
-
-# Build cyclonedds (skip for Humble):
+# Build cyclonedds first
 cd cyclonedds_ws
-colcon build --packages-select cyclonedds
+git clone https://github.com/ros2/rmw_cyclonedds -b humble
+git clone https://github.com/eclipse-cyclonedds/cyclonedds -b releases/0.10.x
+cd .. && colcon build --packages-select cyclonedds
 
-# Source ROS2 and build:
-source /opt/ros/foxy/setup.bash
-colcon build
-
-# Setup environment:
-source ~/unitree_ros2/setup.sh
+# Build packages
+source /opt/ros/humble/setup.sh
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 ```
 
-**Tested:** Ubuntu 20.04 + Foxy, Ubuntu 22.04 + Humble (recommended)
+**Tested:** Ubuntu 22.04 + Humble (recommended), Ubuntu 20.04 + Foxy
 
 ### RL Gym (unitree_rl_gym)
 ```bash
 cd git/official/unitree_rl_gym
-
-# Training:
-python legged_gym/scripts/train.py --task=go2
-
-# Play (visualize):
-python legged_gym/scripts/play.py --task=go2
-
-# Sim2Sim (Mujoco):
-python deploy/deploy_mujoco/deploy_mujoco.py g1.yaml
-
-# Sim2Real (physical robot):
-python deploy/deploy_real/deploy_real.py enp3s0 g1.yaml
+python legged_gym/scripts/train.py --task=go2      # Training
+python legged_gym/scripts/play.py --task=go2       # Visualize
+python deploy/deploy_mujoco/deploy_mujoco.py g1.yaml   # Sim2Sim
+python deploy/deploy_real/deploy_real.py enp3s0 g1.yaml # Sim2Real
 ```
 
 ## Running Examples
 
-### C++ Examples
 ```bash
+# C++ Examples
 cd git/official/unitree_sdk2/build
 ./bin/go2_sport_client enp3s0    # High-level control
 ./bin/go2_low_level enp3s0       # Low-level control
-./bin/publisher                  # DDS publish test
-./bin/subscriber                 # DDS subscribe test
-```
 
-### Python Examples
-```bash
+# Python Examples
 cd git/official/unitree_sdk2_python
-python3 ./example/helloworld/publisher.py
-python3 ./example/high_level/sportmode_test.py enp2s0
-python3 ./example/low_level/lowlevel_control.py enp2s0
-```
+python3 ./example/high_level/sportmode_test.py enp3s0
 
-### ROS2 Examples
-```bash
+# ROS2 Examples
 source ~/unitree_ros2/setup.sh
-cd git/official/unitree_ros2/example
-colcon build
-./install/unitree_ros2_example/bin/read_motion_state
-ros2 topic list
 ros2 topic echo /sportmodestate
 ```
-
-## Robot Connection
-
-1. Connect computer to robot via Ethernet
-2. Configure network interface (e.g., `enp3s0`):
-   - IP: `192.168.123.99`
-   - Netmask: `255.255.255.0`
-3. Replace `enp3s0` in commands with your interface name
 
 ## Code Style
 
 ### C++ (Google Style)
-Configured via `.clang-format` and `.clang-tidy` in unitree_ros2:
+Configured via `.clang-format` in unitree_ros2:
+```yaml
+Language: Cpp
+BasedOnStyle: Google
+```
 
-- **Style:** Based on Google C++ Style
+**Conventions:**
 - **Classes:** `CamelCase`
-- **Functions:** `lower_case`
+- **Functions/variables:** `lower_case`
 - **Private members:** `lower_case_` (trailing underscore)
 - **Enums:** `CamelCase` type, `UPPER_CASE` constants
 - **Standard:** C++17
 
-```cpp
-// Example from official SDK
-#include <unitree/robot/channel/channel_publisher.hpp>
-
-using namespace unitree::robot;
-
-class MyController {
-public:
-    void InitChannel();
-private:
-    ChannelPublisher<Msg> publisher_;
-};
-```
-
-### Python
-- Follow PEP 8
-- Use type hints where practical
+### Python (PEP 8)
 - snake_case for functions/variables
-
-```python
-# Example from official SDK
-from unitree_sdk2py.core.channel import ChannelPublisher, ChannelFactoryInitialize
-
-def main():
-    ChannelFactoryInitialize()
-    pub = ChannelPublisher("topic", UserData)
-    pub.Init()
-```
+- Use type hints where practical
+- No formal linter configured (pyproject.toml minimal)
 
 ## Testing
 
@@ -182,27 +126,44 @@ No formal test suite exists in official repos. Verify by:
 2. Running examples against robot/simulator
 3. Checking DDS communication (publisher/subscriber pair)
 
+**CI Workflows:** GitHub Actions in `.github/workflows/` for unitree_sdk2 and unitree_ros2
+
 ## Key Interfaces
 
-### DDS Topics (Go2)
-- `/sportmodestate` - High-level motion state
-- `/lowstate` - Low-level motor/IMU state
-- `/api/sport/request` - High-level control commands
-- `/lowcmd` - Low-level motor commands
-- `/wirelesscontroller` - Remote controller state
+### DDS Topics (Go2/B2/H1/G1)
+| Topic | Description |
+|-------|-------------|
+| `/sportmodestate` | High-level motion state |
+| `/lowstate` | Low-level motor/IMU state |
+| `/api/sport/request` | High-level control commands |
+| `/lowcmd` | Low-level motor commands |
+| `/wirelesscontroller` | Remote controller state |
 
 ### Sport Modes
-```
-0: idle/stand    1: balanceStand  2: pose
-3: locomotion    5: lieDown       6: jointLock
-7: damping       8: recoveryStand 10: sit
-```
+| Code | Mode |
+|------|------|
+| 0 | idle/stand |
+| 1 | balanceStand |
+| 2 | pose |
+| 3 | locomotion |
+| 5 | lieDown |
+| 6 | jointLock |
+| 7 | damping |
+| 8 | recoveryStand |
+| 10 | sit |
+
+## Robot Connection
+
+1. Connect computer to robot via Ethernet
+2. Configure network interface (e.g., `enp3s0`):
+   - IP: `192.168.123.99`, Netmask: `255.255.255.0`
+3. Replace `enp3s0` in commands with your interface name
 
 ## Documentation Reference
 
-Primary: `git/official/` repository READMEs and code
-Secondary: `docs/Unitree_Go2_SDK_文档全集.md` (official docs, Chinese)
-Official: https://support.unitree.com/home/en/developer
+- **Primary:** `git/official/` repository READMEs and code
+- **Secondary:** `docs/Unitree_Go2_SDK_文档全集.md` (official docs, Chinese)
+- **Official:** https://support.unitree.com/home/en/developer
 
 ## Common Pitfalls
 
