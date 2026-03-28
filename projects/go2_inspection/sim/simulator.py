@@ -6,14 +6,23 @@ import mujoco
 
 class MuJoCoSimulator:
 
-    def __init__(self, model_path, scene_path=None):
+    def __init__(self, model_path):
         self.model = mujoco.MjModel.from_xml_path(model_path)
         self.data = mujoco.MjData(self.model)
         self.running = False
         self.thread = None
         self.lock = threading.Lock()
         self.fps = 500
+
         self.control_cmd = {"vx": 0, "vy": 0, "yaw": 0}
+        self.mode = "stand"
+
+        self.stand_qpos = np.array([0, 0.9, -1.8] * 4)
+        self.down_qpos = np.array([0, 1.2, -2.4] * 4)
+        self.target_qpos = self.stand_qpos.copy()
+        self.kp = 80.0
+        self.kd = 2.0
+
         self.state = {
             "time": 0,
             "position": {"x": 0, "y": 0, "z": 0},
@@ -21,7 +30,17 @@ class MuJoCoSimulator:
             "velocity": {"x": 0, "y": 0, "z": 0},
             "yaw": 0,
         }
+
         mujoco.mj_resetData(self.model, self.data)
+        self._set_initial_pose()
+
+    def _set_initial_pose(self):
+        if self.model.nq >= 19:
+            self.data.qpos[2] = 0.27
+            self.data.qpos[3] = 1
+            for i in range(12):
+                self.data.qpos[7 + i] = self.stand_qpos[i]
+        mujoco.mj_forward(self.model, self.data)
 
     def start(self):
         if self.running:
@@ -49,17 +68,36 @@ class MuJoCoSimulator:
                 time.sleep(dt - elapsed)
 
     def _apply_control(self):
+        nu = self.model.nu
+        if nu < 12:
+            return
+
         ctrl = self.data.ctrl
         cmd = self.control_cmd
-        base_addr = 0
-        for i in range(min(12, self.model.nu)):
-            ctrl[base_addr + i] = 0
-        if self.model.nu > 0:
-            ctrl[0] = cmd["vx"] * 500
-        if self.model.nu > 1:
-            ctrl[1] = cmd["vy"] * 500
-        if self.model.nu > 2:
-            ctrl[2] = cmd["yaw"] * 50
+
+        for i in range(12):
+            q = self.data.qpos[7 + i] if self.model.nq > 7 + i else 0
+            dq = self.data.qvel[6 + i] if self.model.nv > 6 + i else 0
+            tau = self.kp * (self.target_qpos[i] - q) + self.kd * (0 - dq)
+            ctrl[i] = np.clip(tau, -45, 45)
+
+        if self.mode == "stand":
+            if cmd["vx"] != 0 or cmd["vy"] != 0 or cmd["yaw"] != 0:
+                fx = cmd["vx"] * 200
+                fy = cmd["vy"] * 200
+                tz = cmd["yaw"] * 30
+                ctrl[0] += tz
+                ctrl[3] -= tz
+                ctrl[6] += tz
+                ctrl[9] -= tz
+                ctrl[1] += fx * 0.3
+                ctrl[4] += fx * 0.3
+                ctrl[7] -= fx * 0.3
+                ctrl[10] -= fx * 0.3
+                ctrl[2] += fy * 0.3
+                ctrl[5] -= fy * 0.3
+                ctrl[8] += fy * 0.3
+                ctrl[11] -= fy * 0.3
 
     def _update_state(self):
         self.state["time"] = self.data.time
@@ -75,6 +113,8 @@ class MuJoCoSimulator:
                 "y": float(self.data.qpos[5]),
                 "z": float(self.data.qpos[6]),
             }
+            qw, qx, qy, qz = self.data.qpos[3:7]
+            self.state["yaw"] = float(np.arctan2(2*(qw*qz + qx*qy), 1 - 2*(qy*qy + qz*qz)))
         if self.model.nv >= 6:
             self.state["velocity"] = {
                 "x": float(self.data.qvel[0]),
@@ -92,13 +132,15 @@ class MuJoCoSimulator:
 
     def stand_up(self):
         with self.lock:
-            if self.model.nq >= 3:
-                self.data.qpos[2] = 0.35
+            self.target_qpos = self.stand_qpos.copy()
+            self.mode = "stand"
+            self.data.qpos[2] = 0.27
 
     def stand_down(self):
         with self.lock:
-            if self.model.nq >= 3:
-                self.data.qpos[2] = 0.15
+            self.target_qpos = self.down_qpos.copy()
+            self.mode = "stand"
+            self.data.qpos[2] = 0.12
 
     def stop_movement(self):
         self.set_control(0, 0, 0)

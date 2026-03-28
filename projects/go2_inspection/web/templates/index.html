@@ -6,40 +6,39 @@
     <title>Go2 巡检仿真系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #1a1a2e; color: #eee; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #1a1a2e; color: #eee; overflow: hidden; }
         .container { display: flex; height: 100vh; }
-        .left-panel { width: 320px; background: #16213e; padding: 20px; overflow-y: auto; }
-        .main-panel { flex: 1; display: flex; flex-direction: column; }
+        .left-panel { width: 260px; background: #16213e; padding: 12px; overflow-y: auto; flex-shrink: 0; font-size: 12px; }
+        .main-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
         .canvas-container { flex: 1; position: relative; background: #0f0f23; }
-        #threeCanvas { width: 100%; height: 100%; }
-        .bottom-panel { height: 200px; background: #16213e; padding: 10px; display: flex; gap: 10px; }
-        h2 { color: #4cc9f0; margin-bottom: 15px; font-size: 18px; }
-        h3 { color: #f72585; margin: 15px 0 10px; font-size: 14px; }
-        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        #threeCanvas { width: 100%; height: 100%; display: block; }
+        .bottom-panel { height: 160px; background: #16213e; padding: 8px; display: flex; gap: 8px; flex-shrink: 0; }
+        h2 { color: #4cc9f0; margin-bottom: 10px; font-size: 14px; }
+        h3 { color: #f72585; margin: 8px 0 5px; font-size: 11px; }
+        .btn { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; }
         .btn-primary { background: #4cc9f0; color: #000; }
         .btn-success { background: #06d6a0; color: #000; }
         .btn-danger { background: #ef476f; color: #fff; }
         .btn-warning { background: #ffd166; color: #000; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
-        .status-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #333; font-size: 13px; }
+        .btn-group { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+        .status-item { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid #1a1a2e; }
         .status-label { color: #888; }
         .status-value { color: #4cc9f0; font-family: monospace; }
-        .joystick-container { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
-        .joystick { width: 120px; height: 120px; background: #333; border-radius: 50%; position: relative; border: 2px solid #4cc9f0; }
-        .joystick-knob { width: 40px; height: 40px; background: #4cc9f0; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: grab; }
-        .joystick-label { text-align: center; margin-top: 5px; font-size: 12px; color: #888; }
-        #logPanel { flex: 1; background: #0f0f23; border-radius: 4px; padding: 10px; overflow-y: auto; font-family: monospace; font-size: 12px; }
-        #mapCanvas { flex: 1; background: #0f0f23; border-radius: 4px; }
-        .log-entry { padding: 2px 0; border-bottom: 1px solid #222; }
+        #logPanel { flex: 1; background: #0f0f23; border-radius: 4px; padding: 6px; overflow-y: auto; font-family: monospace; font-size: 10px; }
+        #mapCanvas { width: 140px; height: 140px; background: #0f0f23; border-radius: 4px; }
+        .log-entry { padding: 1px 0; }
         .log-info { color: #4cc9f0; }
         .log-warn { color: #ffd166; }
-        .log-error { color: #ef476f; }
-        .map-list { max-height: 150px; overflow-y: auto; background: #0f0f23; border-radius: 4px; padding: 8px; }
-        .map-item { display: flex; justify-content: space-between; padding: 4px 8px; cursor: pointer; border-radius: 3px; font-size: 12px; }
+        .map-list { max-height: 80px; overflow-y: auto; background: #0f0f23; border-radius: 4px; padding: 4px; font-size: 10px; }
+        .map-item { padding: 2px 4px; cursor: pointer; border-radius: 2px; }
         .map-item:hover { background: #333; }
-        .map-item.selected { background: #4cc9f0; color: #000; }
+        .map-input { padding: 3px 5px; border-radius: 4px; border: 1px solid #444; background: #0f0f23; color: #eee; width: 80px; font-size: 11px; }
+        .joystick-area { position: absolute; bottom: 170px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 30px; pointer-events: none; z-index: 10; }
+        .joystick-base { width: 100px; height: 100px; background: rgba(255,255,255,0.06); border: 2px solid rgba(76,201,240,0.3); border-radius: 50%; position: relative; pointer-events: auto; touch-action: none; }
+        .joystick-handle { width: 36px; height: 36px; background: rgba(76,201,240,0.6); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; transition: background 0.1s; }
+        .joystick-base:active .joystick-handle { background: rgba(76,201,240,0.9); }
+        .joystick-label { text-align: center; margin-top: 3px; font-size: 10px; color: #666; pointer-events: none; }
+        #helpText { position: absolute; bottom: 170px; left: 50%; transform: translateX(-50%); color: #444; font-size: 10px; pointer-events: none; z-index: 5; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -47,166 +46,421 @@
         <div class="left-panel">
             <h2>Go2 巡检仿真</h2>
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="connectSim()">启动仿真</button>
-                <button class="btn btn-danger" onclick="disconnectSim()">停止仿真</button>
+                <button class="btn btn-primary" onclick="api('connect')">启动仿真</button>
+                <button class="btn btn-danger" onclick="api('disconnect')">停止</button>
             </div>
-            <h3>姿态控制</h3>
+            <h3>姿态</h3>
             <div class="btn-group">
-                <button class="btn btn-success" onclick="standUp()">站起</button>
-                <button class="btn btn-warning" onclick="standDown()">趴下</button>
-                <button class="btn btn-danger" onclick="stopMove()">停止</button>
+                <button class="btn btn-success" onclick="api('stand_up')">站起</button>
+                <button class="btn btn-warning" onclick="api('stand_down')">趴下</button>
+                <button class="btn btn-danger" onclick="api('stop')">停止</button>
             </div>
-            <h3>建图控制</h3>
+            <h3>建图</h3>
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="startMapping()">开始建图</button>
-                <button class="btn btn-warning" onclick="stopMapping()">停止建图</button>
+                <button class="btn btn-primary" onclick="api('map/start_mapping')">开始建图</button>
+                <button class="btn btn-warning" onclick="api('map/stop_mapping')">停止建图</button>
             </div>
             <div class="btn-group">
-                <input type="text" id="mapName" placeholder="地图名称" value="map_001" style="padding:6px;border-radius:4px;border:1px solid #444;background:#0f0f23;color:#eee;width:120px;">
-                <button class="btn btn-success" onclick="saveMap()">保存地图</button>
+                <input type="text" id="mapName" class="map-input" value="map_001">
+                <button class="btn btn-success" onclick="saveMap()">保存</button>
             </div>
             <h3>地图列表</h3>
             <div class="map-list" id="mapList"></div>
-            <h3>机器人状态</h3>
-            <div id="statusPanel">
-                <div class="status-item"><span class="status-label">位置 X</span><span class="status-value" id="posX">0.00</span></div>
-                <div class="status-item"><span class="status-label">位置 Y</span><span class="status-value" id="posY">0.00</span></div>
-                <div class="status-item"><span class="status-label">位置 Z</span><span class="status-value" id="posZ">0.00</span></div>
+            <h3>状态</h3>
+            <div>
+                <div class="status-item"><span class="status-label">X</span><span class="status-value" id="posX">0.00</span></div>
+                <div class="status-item"><span class="status-label">Y</span><span class="status-value" id="posY">0.00</span></div>
+                <div class="status-item"><span class="status-label">Z</span><span class="status-value" id="posZ">0.00</span></div>
                 <div class="status-item"><span class="status-label">朝向</span><span class="status-value" id="yaw">0.00</span></div>
                 <div class="status-item"><span class="status-label">速度</span><span class="status-value" id="velocity">0.00</span></div>
-                <div class="status-item"><span class="status-label">仿真时间</span><span class="status-value" id="simTime">0.00</span></div>
-                <div class="status-item"><span class="status-label">建图状态</span><span class="status-value" id="mappingStatus">未激活</span></div>
+                <div class="status-item"><span class="status-label">时间</span><span class="status-value" id="simTime">0.0</span></div>
+                <div class="status-item"><span class="status-label">建图</span><span class="status-value" id="mappingStatus">-</span></div>
+                <div class="status-item"><span class="status-label">LiDAR</span><span class="status-value" id="lidarCount">0</span></div>
             </div>
         </div>
         <div class="main-panel">
             <div class="canvas-container">
                 <canvas id="threeCanvas"></canvas>
+                <div id="helpText">WASD 前后左右 | ←→ 旋转 | 鼠标拖拽旋转 | 滚轮缩放 | 双摇杆控制</div>
+                <div class="joystick-area">
+                    <div>
+                        <div class="joystick-base" id="leftJoy"><div class="joystick-handle" id="leftHandle"></div></div>
+                        <div class="joystick-label">前后左右</div>
+                    </div>
+                    <div>
+                        <div class="joystick-base" id="rightJoy"><div class="joystick-handle" id="rightHandle"></div></div>
+                        <div class="joystick-label">左转右转</div>
+                    </div>
+                </div>
             </div>
             <div class="bottom-panel">
                 <div id="logPanel"></div>
-                <canvas id="mapCanvas" width="200" height="200"></canvas>
+                <canvas id="mapCanvas" width="140" height="140"></canvas>
             </div>
         </div>
     </div>
-    <script>
+
+    <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls;
+        let robotGroup, lidarPoints, trailLine;
         let ws = null;
-        let cmdInterval = null;
-        let cmd = {vx: 0, vy: 0, yaw: 0};
+        let moveCmd = {vx: 0, vy: 0, yaw: 0};
         const keys = {};
+        const trail = [];
+
+        function init3D() {
+            const canvas = document.getElementById("threeCanvas");
+            const container = canvas.parentElement;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f0f23);
+            scene.fog = new THREE.Fog(0x0f0f23, 10, 25);
+
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.set(2, 2.5, 2);
+
+            renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.target.set(0, 0.3, 0);
+            controls.minDistance = 1;
+            controls.maxDistance = 15;
+            controls.maxPolarAngle = Math.PI * 0.48;
+
+            scene.add(new THREE.AmbientLight(0x606080, 1.5));
+            const sun = new THREE.DirectionalLight(0xffffff, 2);
+            sun.position.set(5, 8, 5);
+            sun.castShadow = true;
+            sun.shadow.mapSize.set(1024, 1024);
+            scene.add(sun);
+            scene.add(new THREE.HemisphereLight(0x8888aa, 0x444466, 0.6));
+
+            const grid = new THREE.GridHelper(20, 40, 0x333355, 0x1a1a33);
+            scene.add(grid);
+
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(20, 20),
+                new THREE.MeshStandardMaterial({color: 0x15152a, roughness: 0.95})
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -0.005;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            robotGroup = createRobot();
+            scene.add(robotGroup);
+
+            lidarPoints = new THREE.Points(
+                new THREE.BufferGeometry(),
+                new THREE.PointsMaterial({color: 0x4cc9f0, size: 0.03, sizeAttenuation: true})
+            );
+            scene.add(lidarPoints);
+
+            trailLine = new THREE.Line(
+                new THREE.BufferGeometry(),
+                new THREE.LineBasicMaterial({color: 0x06d6a0, transparent: true, opacity: 0.5})
+            );
+            scene.add(trailLine);
+
+            addEnvironment();
+
+            window.addEventListener("resize", () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            animate();
+        }
+
+        function createRobot() {
+            const g = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({color: 0x3a3a5a, metalness: 0.4, roughness: 0.6});
+            const accent = new THREE.MeshStandardMaterial({color: 0x4cc9f0, metalness: 0.3, roughness: 0.5, emissive: 0x4cc9f0, emissiveIntensity: 0.15});
+
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.14, 0.28), mat);
+            body.position.y = 0.28; body.castShadow = true; g.add(body);
+
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.1, 0.16), mat);
+            head.position.set(0.3, 0.3, 0); head.castShadow = true; g.add(head);
+
+            const lidarMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.015, 12), accent);
+            lidarMesh.position.set(0.36, 0.34, 0); g.add(lidarMesh);
+
+            const cam = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), accent);
+            cam.position.set(0.37, 0.31, 0.04); g.add(cam);
+
+            const conf = [
+                {x: 0.19, z: -0.14, s: 1}, {x: 0.19, z: 0.14, s: -1},
+                {x: -0.19, z: -0.14, s: 1}, {x: -0.19, z: 0.14, s: -1}
+            ];
+            conf.forEach(({x, z, s}) => {
+                const hip = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.08), mat);
+                hip.position.set(x, 0.24, z); hip.castShadow = true; g.add(hip);
+
+                const thigh = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.2, 0.05), mat);
+                thigh.position.set(x + s * 0.04, 0.13, z); thigh.castShadow = true; g.add(thigh);
+
+                const calf = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.18, 0.04), mat);
+                calf.position.set(x + s * 0.06, 0.0, z); calf.castShadow = true; g.add(calf);
+
+                const foot = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), accent);
+                foot.position.set(x + s * 0.06, -0.1, z); g.add(foot);
+            });
+
+            const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.07, 4), accent);
+            arrow.rotation.z = -Math.PI / 2;
+            arrow.position.set(0.38, 0.28, 0); g.add(arrow);
+
+            return g;
+        }
+
+        function addEnvironment() {
+            const wallMat = new THREE.MeshStandardMaterial({color: 0x2a2a44, roughness: 0.85});
+            const walls = [
+                [0, 0.6, 5, 10, 1.2, 0.15],
+                [0, 0.6, -5, 10, 1.2, 0.15],
+                [5, 0.6, 0, 0.15, 1.2, 10],
+                [-5, 0.6, 0, 0.15, 1.2, 10]
+            ];
+            walls.forEach(([x, y, z, w, h, d]) => {
+                const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+                wall.position.set(x, y, z);
+                wall.castShadow = true; wall.receiveShadow = true;
+                scene.add(wall);
+            });
+
+            const obstacles = [
+                [2.5, 0.4, 2.5, 0.6, 0.8, 0.5],
+                [-2, 0.25, -3, 0.4, 0.5, 0.4],
+                [1, 0.15, -2, 0.3, 0.3, 0.3],
+                [-3, 0.3, 1, 0.5, 0.6, 0.6],
+                [0, 0.1, 3, 0.2, 0.2, 0.2]
+            ];
+            obstacles.forEach(([x, y, z, w, h, d]) => {
+                const obs = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+                obs.position.set(x, y, z);
+                obs.castShadow = true;
+                scene.add(obs);
+            });
+
+            const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.4, 16), wallMat);
+            cyl.position.set(-1, 0.2, 2); cyl.castShadow = true;
+            scene.add(cyl);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function updateRobot(pos, yaw) {
+            robotGroup.position.set(pos.x, pos.y, pos.z);
+            robotGroup.rotation.y = yaw || 0;
+
+            trail.push(pos.x, pos.z);
+            if (trail.length > 400) trail.splice(0, 2);
+            if (trail.length >= 4) {
+                trailLine.geometry.dispose();
+                trailLine.geometry = new THREE.BufferGeometry();
+                trailLine.geometry.setAttribute('position', new THREE.Float32BufferAttribute(trail, 2));
+            }
+        }
+
+        function updateLidar(points) {
+            if (!points?.length) return;
+            const pos = robotGroup.position;
+            const yaw = robotGroup.rotation.y;
+            const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
+            const arr = new Float32Array(points.length * 3);
+            points.forEach((p, i) => {
+                arr[i*3] = pos.x + p[0]*cosY - p[1]*sinY;
+                arr[i*3+1] = 0.25;
+                arr[i*3+2] = pos.z + p[0]*sinY + p[1]*cosY;
+            });
+            lidarPoints.geometry.dispose();
+            lidarPoints.geometry = new THREE.BufferGeometry();
+            lidarPoints.geometry.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+        }
 
         function connectWS() {
             ws = new WebSocket(`ws://${location.host}/ws`);
             ws.onmessage = (e) => {
+                dataCount++;
                 const msg = JSON.parse(e.data);
-                if (msg.type === "state") updateState(msg);
+                if (msg.type !== "state") return;
+                const d = msg.data;
+                document.getElementById("posX").textContent = d.position.x.toFixed(2);
+                document.getElementById("posY").textContent = d.position.y.toFixed(2);
+                document.getElementById("posZ").textContent = d.position.z.toFixed(2);
+                document.getElementById("yaw").textContent = (d.yaw||0).toFixed(2);
+                document.getElementById("velocity").textContent = Math.sqrt(d.velocity.x**2+d.velocity.y**2).toFixed(2);
+                document.getElementById("simTime").textContent = d.time.toFixed(1);
+                document.getElementById("mappingStatus").textContent = msg.mapping_active ? "ON" : "OFF";
+                updateRobot(d.position, d.yaw);
+                if (msg.lidar?.points?.length) {
+                    updateLidar(msg.lidar.points);
+                    document.getElementById("lidarCount").textContent = msg.lidar.points.length;
+                    drawMap(msg.lidar.points);
+                }
             };
-            ws.onclose = () => { log("WebSocket断开", "warn"); setTimeout(connectWS, 2000); };
+            ws.onclose = () => { log("断开，重连中...", "warn"); setTimeout(connectWS, 2000); };
             ws.onopen = () => log("WebSocket已连接", "info");
+            ws.onerror = (e) => log("WebSocket错误", "warn");
         }
 
-        function updateState(msg) {
-            const d = msg.data;
-            document.getElementById("posX").textContent = d.position.x.toFixed(3);
-            document.getElementById("posY").textContent = d.position.y.toFixed(3);
-            document.getElementById("posZ").textContent = d.position.z.toFixed(3);
-            document.getElementById("yaw").textContent = (d.yaw || 0).toFixed(3);
-            document.getElementById("velocity").textContent = Math.sqrt(d.velocity.x**2 + d.velocity.y**2).toFixed(3);
-            document.getElementById("simTime").textContent = d.time.toFixed(2);
-            document.getElementById("mappingStatus").textContent = msg.mapping_active ? "建图中" : "未激活";
-            if (msg.lidar && msg.lidar.points) drawMap(msg.lidar.points);
-        }
-
-        function drawMap(points) {
+        function drawMap(pts) {
             const c = document.getElementById("mapCanvas");
             const ctx = c.getContext("2d");
             ctx.fillStyle = "#0f0f23";
-            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.fillRect(0, 0, 140, 140);
             ctx.fillStyle = "#4cc9f0";
-            const scale = 10;
-            const cx = c.width / 2;
-            const cy = c.height / 2;
-            points.forEach(p => {
-                const x = cx + p[0] * scale;
-                const y = cy - p[1] * scale;
-                ctx.fillRect(x, y, 2, 2);
-            });
+            pts.forEach(p => ctx.fillRect(70+p[0]*7, 70-p[1]*7, 1, 1));
             ctx.fillStyle = "#ef476f";
-            ctx.fillRect(cx - 3, cy - 3, 6, 6);
+            ctx.beginPath(); ctx.arc(70, 70, 3, 0, Math.PI*2); ctx.fill();
         }
 
         function log(msg, type="info") {
-            const panel = document.getElementById("logPanel");
-            const div = document.createElement("div");
-            div.className = `log-entry log-${type}`;
-            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            panel.appendChild(div);
-            panel.scrollTop = panel.scrollHeight;
+            const p = document.getElementById("logPanel");
+            const d = document.createElement("div");
+            d.className = `log-entry log-${type}`;
+            d.textContent = `[${new Date().toLocaleTimeString().slice(0,5)}] ${msg}`;
+            p.appendChild(d);
+            if (p.children.length > 50) p.removeChild(p.firstChild);
+            p.scrollTop = p.scrollHeight;
         }
 
-        async function api(path, method="POST") {
-            const r = await fetch(`/api/${path}`, {method});
-            const d = await r.json();
-            log(d.message || JSON.stringify(d), d.success ? "info" : "error");
-            return d;
+        async function api(path) {
+            try {
+                const r = await fetch(`/api/${path}`, {method: "POST"});
+                const d = await r.json();
+                log(d.message || (d.success ? "OK" : "FAIL"), d.success ? "info" : "warn");
+            } catch(e) {
+                log("请求失败: " + e.message, "warn");
+            }
         }
-
-        function connectSim() { api("connect"); }
-        function disconnectSim() { api("disconnect"); }
-        function standUp() { api("stand_up"); }
-        function standDown() { api("stand_down"); }
-        function stopMove() { api("stop"); }
-        function startMapping() { api("map/start_mapping"); }
-        function stopMapping() { api("map/stop_mapping"); }
+        window.api = api;
 
         async function saveMap() {
             const name = document.getElementById("mapName").value;
-            await api(`map/save?name=${name}`);
+            const r = await fetch(`/api/map/save?name=${name}`, {method: "POST"});
+            const d = await r.json();
+            if (d.message) log(d.message);
             loadMapList();
         }
+        window.saveMap = saveMap;
+
+        async function loadMap(name) {
+            const r = await fetch(`/api/map/load/${name}`, {method: "POST"});
+            const d = await r.json();
+            if (d.message) log(d.message);
+        }
+        window.loadMap = loadMap;
 
         async function loadMapList() {
             const r = await fetch("/api/map/list");
             const d = await r.json();
             if (d.success) {
-                const list = document.getElementById("mapList");
-                list.innerHTML = d.data.map(m => `<div class="map-item" onclick="loadMap('${m.name}')">${m.name}</div>`).join("");
+                document.getElementById("mapList").innerHTML = d.data.map(m =>
+                    `<div class="map-item" onclick="loadMap('${m.name}')">${m.name}</div>`
+                ).join("");
+            }
+        }
+        window.loadMapList = loadMapList;
+
+        function sendCmd() {
+            if (moveCmd.vx !== 0 || moveCmd.vy !== 0 || moveCmd.yaw !== 0) {
+                fetch("/api/move", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(moveCmd)
+                }).catch(()=>{});
             }
         }
 
-        async function loadMap(name) {
-            await api(`map/load/${name}`);
-        }
-
-        function sendMoveCmd() {
-            fetch("/api/move", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(cmd),
-            });
-        }
-
-        document.addEventListener("keydown", (e) => {
+        document.addEventListener("keydown", e => {
+            if (e.target.tagName === "INPUT") return;
             keys[e.key.toLowerCase()] = true;
             updateCmd();
         });
-        document.addEventListener("keyup", (e) => {
+        document.addEventListener("keyup", e => {
             keys[e.key.toLowerCase()] = false;
             updateCmd();
         });
 
         function updateCmd() {
-            cmd.vx = 0; cmd.vy = 0; cmd.yaw = 0;
-            if (keys["w"]) cmd.vx = 0.5;
-            if (keys["s"]) cmd.vx = -0.5;
-            if (keys["a"]) cmd.vy = 0.5;
-            if (keys["d"]) cmd.vy = -0.5;
-            if (keys["arrowleft"]) cmd.yaw = 0.5;
-            if (keys["arrowright"]) cmd.yaw = -0.5;
+            moveCmd = {vx: 0, vy: 0, yaw: 0};
+            if (keys["w"]) moveCmd.vx = 0.5;
+            if (keys["s"]) moveCmd.vx = -0.5;
+            if (keys["a"]) moveCmd.vy = 0.5;
+            if (keys["d"]) moveCmd.vy = -0.5;
+            if (keys["arrowleft"]) moveCmd.yaw = 0.5;
+            if (keys["arrowright"]) moveCmd.yaw = -0.5;
         }
 
+        function initJoystick(baseId, handleId, onChange) {
+            const base = document.getElementById(baseId);
+            const handle = document.getElementById(handleId);
+            const r = 50;
+            let active = false;
+
+            function update(ex, ey) {
+                const rect = base.getBoundingClientRect();
+                let dx = ex - rect.left - rect.width/2;
+                let dy = ey - rect.top - rect.height/2;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist > r) { dx = dx/dist*r; dy = dy/dist*r; }
+                handle.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+                onChange(dx/r, -dy/r);
+            }
+
+            function reset() {
+                active = false;
+                handle.style.transform = "translate(-50%, -50%)";
+                onChange(0, 0);
+            }
+
+            base.addEventListener("pointerdown", e => {
+                active = true;
+                base.setPointerCapture(e.pointerId);
+                update(e.clientX, e.clientY);
+            });
+            base.addEventListener("pointermove", e => { if (active) update(e.clientX, e.clientY); });
+            base.addEventListener("pointerup", reset);
+            base.addEventListener("pointercancel", reset);
+        }
+
+        initJoystick("leftJoy", "leftHandle", (x, y) => {
+            moveCmd.vx = y * 0.8;
+            moveCmd.vy = x * 0.6;
+        });
+        initJoystick("rightJoy", "rightHandle", (x) => {
+            moveCmd.yaw = x * 1.0;
+        });
+
+        init3D();
         connectWS();
         loadMapList();
-        setInterval(sendMoveCmd, 50);
+        setInterval(sendCmd, 50);
+
+        let dataCount = 0;
+        setInterval(() => {
+            if (dataCount === 0) log("等待仿真数据... (请先点击启动仿真)", "warn");
+            dataCount = 0;
+        }, 5000);
     </script>
 </body>
 </html>

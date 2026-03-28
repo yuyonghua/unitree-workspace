@@ -4,8 +4,7 @@ import os
 import sys
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 
@@ -19,6 +18,11 @@ from storage.manager import MapManager
 app = FastAPI(title="Go2 Inspection System")
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
+_mesh_rel = "git/official/unitree_ros/robots/go2_description/meshes/visual"
+MESH_DIR = os.path.join(os.path.dirname(__file__), "../../../", _mesh_rel)
+if not os.path.exists(MESH_DIR):
+    MESH_DIR = os.path.join(os.path.expanduser("~/unitree_ws"), _mesh_rel)
+
 simulator = None
 lidar = None
 mapper = None
@@ -28,12 +32,7 @@ connected_clients = set()
 
 def init_system():
     global simulator, lidar, mapper, map_manager
-    model_path = os.path.join(os.path.dirname(__file__), SIMULATION["model_path"])
-    if not os.path.exists(model_path):
-        model_path = os.path.join(
-            os.path.dirname(__file__),
-            "../../git/official/unitree_mujoco/unitree_robots/go2/go2.xml"
-        )
+    model_path = SIMULATION["model_path"]
     simulator = MuJoCoSimulator(model_path)
     lidar = LiDARSensor(
         horizontal_fov=LIDAR["horizontal_fov"],
@@ -67,6 +66,14 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@app.get("/api/mesh/{filename}")
+async def get_mesh(filename: str):
+    filepath = os.path.join(MESH_DIR, filename)
+    if not os.path.exists(filepath):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse(filepath, media_type="model/vnd.collada+xml")
+
+
 @app.post("/api/connect")
 async def api_connect():
     if simulator:
@@ -88,7 +95,7 @@ async def api_stand_up():
     if simulator:
         simulator.stand_up()
         return {"success": True, "message": "站起"}
-    return {"success": False, "message": "仿真器未初始化"}
+    return {"success": False}
 
 
 @app.post("/api/stand_down")
@@ -96,7 +103,7 @@ async def api_stand_down():
     if simulator:
         simulator.stand_down()
         return {"success": True, "message": "趴下"}
-    return {"success": False, "message": "仿真器未初始化"}
+    return {"success": False}
 
 
 @app.post("/api/stop")
@@ -104,7 +111,7 @@ async def api_stop():
     if simulator:
         simulator.stop_movement()
         return {"success": True, "message": "停止移动"}
-    return {"success": False, "message": "仿真器未初始化"}
+    return {"success": False}
 
 
 @app.post("/api/move")
@@ -115,15 +122,15 @@ async def api_move(vx: float = 0, vy: float = 0, yaw: float = 0):
             max(min(vy, ROBOT["max_velocity_y"]), -ROBOT["max_velocity_y"]),
             max(min(yaw, ROBOT["max_yaw_rate"]), -ROBOT["max_yaw_rate"]),
         )
-        return {"success": True, "message": f"移动: vx={vx}, vy={vy}, yaw={yaw}"}
-    return {"success": False, "message": "仿真器未初始化"}
+        return {"success": True}
+    return {"success": False}
 
 
 @app.get("/api/status")
 async def api_status():
     if simulator:
         return {"success": True, "data": simulator.get_state()}
-    return {"success": False, "message": "仿真器未初始化"}
+    return {"success": False}
 
 
 @app.post("/api/map/start_mapping")
@@ -131,7 +138,7 @@ async def api_start_mapping():
     if mapper:
         mapper.start()
         return {"success": True, "message": "开始建图"}
-    return {"success": False, "message": "建图器未初始化"}
+    return {"success": False}
 
 
 @app.post("/api/map/stop_mapping")
@@ -139,7 +146,7 @@ async def api_stop_mapping():
     if mapper:
         mapper.stop()
         return {"success": True, "message": "停止建图", "scan_count": mapper.scan_count}
-    return {"success": False, "message": "建图器未初始化"}
+    return {"success": False}
 
 
 @app.post("/api/map/save")
@@ -148,14 +155,14 @@ async def api_save_map(name: str = "default"):
         map_data = mapper.get_map_data()
         filepath = map_manager.save_map(name, map_data)
         return {"success": True, "message": f"地图已保存: {name}", "path": filepath}
-    return {"success": False, "message": "建图器或存储管理器未初始化"}
+    return {"success": False}
 
 
 @app.get("/api/map/list")
 async def api_list_maps():
     if map_manager:
         return {"success": True, "data": map_manager.list_maps()}
-    return {"success": False, "message": "存储管理器未初始化"}
+    return {"success": False}
 
 
 @app.post("/api/map/load/{name}")
@@ -165,7 +172,7 @@ async def api_load_map(name: str):
         if map_data:
             return {"success": True, "data": map_data}
         return {"success": False, "message": f"地图不存在: {name}"}
-    return {"success": False, "message": "存储管理器未初始化"}
+    return {"success": False}
 
 
 @app.delete("/api/map/delete/{name}")
@@ -173,8 +180,8 @@ async def api_delete_map(name: str):
     if map_manager:
         if map_manager.delete_map(name):
             return {"success": True, "message": f"地图已删除: {name}"}
-        return {"success": False, "message": f"地图不存在: {name}"}
-    return {"success": False, "message": "存储管理器未初始化"}
+        return {"success": False}
+    return {"success": False}
 
 
 @app.websocket("/ws")
@@ -196,6 +203,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     "lidar": lidar_data,
                     "mapping_active": mapper.is_active() if mapper else False,
                 })
+            else:
+                await websocket.send_json({"type": "heartbeat"})
             await asyncio.sleep(1.0 / SIMULATION["web_fps"])
     except WebSocketDisconnect:
         connected_clients.discard(websocket)

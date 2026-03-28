@@ -2,20 +2,20 @@
 
 import os
 
+UNITREE_WS = os.path.expanduser("~/unitree_ws")
+
 # ============================================
 # 仿真配置
 # ============================================
+_model_rel = "git/official/unitree_mujoco/unitree_robots/go2/go2.xml"
+_model_path = os.path.join(os.path.dirname(__file__), "../../../", _model_rel)
+if not os.path.exists(_model_path):
+    _model_path = os.path.join(UNITREE_WS, _model_rel)
+
 SIMULATION = {
     "fps": 500,                          # 物理仿真频率 (Hz)
     "web_fps": 20,                       # Web数据推送频率 (Hz)
-    "model_path": os.path.join(
-        os.path.dirname(__file__),
-        "../../git/official/unitree_mujoco/unitree_robots/go2/go2.xml"
-    ),
-    "scene_path": os.path.join(
-        os.path.dirname(__file__),
-        "../../git/official/unitree_mujoco/unitree_robots/go2/scene.xml"
-    ),
+    "model_path": _model_path,
 }
 
 # ============================================
