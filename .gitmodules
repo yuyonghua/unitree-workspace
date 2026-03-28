@@ -1,0 +1,6 @@
+[submodule "git/official/unitree_model"]
+	path = git/official/unitree_model
+	url = https://github.com/unitreerobotics/unitree_model.git
+[submodule "git/official/unitree_ros"]
+	path = git/official/unitree_ros
+	url = https://github.com/unitreerobotics/unitree_ros.git
