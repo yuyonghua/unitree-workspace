@@ -1,0 +1,121 @@
+# Unitree Workspace Repository Manifest
+# Usage: ./setup.sh
+# Documentation: See README.md for usage instructions
+
+official:
+  - path: git/official/unitree_sdk2
+    url: https://github.com/unitreerobotics/unitree_sdk2.git
+    description: C++ SDK for Go2/B2/H1/G1 robots
+    required: true
+
+  - path: git/official/unitree_sdk2_python
+    url: https://github.com/unitreerobotics/unitree_sdk2_python.git
+    description: Python interface for unitree_sdk2
+    required: true
+
+  - path: git/official/unitree_ros2
+    url: https://github.com/unitreerobotics/unitree_ros2.git
+    description: ROS2 communication package
+    required: false
+
+  - path: git/official/unitree_ros
+    url: https://github.com/unitreerobotics/unitree_ros.git
+    description: ROS1 package with URDF models for all robots
+    required: false
+
+  - path: git/official/unitree_mujoco
+    url: https://github.com/unitreerobotics/unitree_mujoco.git
+    description: Mujoco simulation with sim-to-real support
+    required: false
+
+  - path: git/official/unitree_rl_gym
+    url: https://github.com/unitreerobotics/unitree_rl_gym.git
+    description: RL training environment (Isaac Gym)
+    required: false
+
+  - path: git/official/unitree_model
+    url: https://github.com/unitreerobotics/unitree_model.git
+    description: USD models for Isaac Sim
+    required: false
+
+  - path: git/official/point_lio_unilidar
+    url: https://github.com/unitreerobotics/point_lio_unilidar.git
+    description: SLAM with 4D Lidar L1
+    required: false
+
+community:
+  - path: git/community/go2_ros2_sdk
+    url: https://github.com/abizovnuralem/go2_ros2_sdk.git
+    description: Go2 ROS2 SDK with SLAM support
+
+  - path: git/community/Go2Controller
+    url: https://github.com/nesl/Go2Controller.git
+    description: Go2 controller implementations
+
+  - path: git/community/go2_nav2_ros2
+    url: https://github.com/arjun-sadananda/go2_nav2_ros2.git
+    description: Go2 navigation with Nav2
+
+  - path: git/community/unitree_go2_ros2_sdk
+    url: https://github.com/OpenMind/unitree_go2_ros2_sdk.git
+    description: Unitree Go2 ROS2 SDK
+
+  - path: git/community/Go2Py
+    url: https://github.com/machines-in-motion/Go2Py.git
+    description: Python interface for Go2
+
+  - path: git/community/go2_omniverse
+    url: https://github.com/abizovnuralem/go2_omniverse.git
+    description: NVIDIA Omniverse integration for Go2
+
+  - path: git/community/tsinghua-Unitree-ROS
+    url: https://github.com/MistyMoonR/tsinghua-Unitree-ROS.git
+    description: Tsinghua University ROS workspace for Unitree
+
+  - path: git/community/amigo_ros2
+    url: https://github.com/eppl-erau-db/amigo_ros2.git
+    description: AMIGO ROS2 package
+
+  - path: git/community/Aliengo_2D_Nav-sim
+    url: https://github.com/guru-narayana/Aliengo_2D_Nav-sim.git
+    description: Aliengo 2D navigation simulation
+
+  - path: git/community/autonomy_stack_go2
+    url: https://github.com/jizhang-cmu/autonomy_stack_go2.git
+    description: Go2 autonomy stack
+
+  - path: git/community/be2r_mpc-climbing_unitree
+    url: https://github.com/be2rlab/be2r_mpc-climbing_unitree.git
+    description: MPC climbing for Unitree
+
+  - path: git/community/exploration_go2
+    url: https://github.com/gcairone/exploration_go2.git
+    description: Go2 exploration package
+
+  - path: git/community/Go1-Nav2-SDK
+    url: https://github.com/ShaunAlt-Unitree-Go1/Go1-Nav2-SDK.git
+    description: Go1 Nav2 SDK
+
+  - path: git/community/go2Autonomousnavigation
+    url: https://github.com/Sayantani-Bhattacharya/go2Autonomousnavigation.git
+    description: Go2 autonomous navigation
+
+  - path: git/community/unitree_go2_nav
+    url: https://github.com/Sayantani-Bhattacharya/unitree_go2_nav.git
+    description: Unitree Go2 navigation
+
+  - path: git/community/go2_slam
+    url: https://github.com/Unitree-Go2-Robot/go2_slam.git
+    description: Go2 SLAM package
+
+  - path: git/community/unitree-go2-slam-nav2
+    url: https://gitee.com/jhaiq/unitree-go2-slam-nav2.git
+    description: Go2 SLAM with Nav2
+
+  - path: git/community/unitree_nav
+    url: https://github.com/ngmor/unitree_nav.git
+    description: Unitree navigation
+
+  - path: git/community/unitree_webrtc_connect
+    url: https://github.com/legion1581/unitree_webrtc_connect.git
+    description: WebRTC connection for Unitree

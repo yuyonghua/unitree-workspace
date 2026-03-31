@@ -4,11 +4,34 @@ Unitree四足机器人开发工作空间，包含Go2/B2/H1/G1的官方SDK、ROS2
 
 ## 快速开始
 
-### 1. 克隆工作空间
+### 方式一：一键克隆（推荐）
 
 ```bash
-git clone --recursive https://github.com/yuyonghua/unitree-workspace.git unitree_ws
+git clone https://github.com/yuyonghua/unitree-workspace.git unitree_ws
 cd unitree_ws
+./setup.sh --shallow
+```
+
+**选项说明：**
+```bash
+./setup.sh --shallow              # 快速克隆官方SDK（推荐）
+./setup.sh --shallow --community  # 包含社区项目
+./setup.sh --official-only        # 只克隆官方SDK
+./setup.sh --update               # 更新已克隆的仓库
+```
+
+### 方式二：手动克隆
+
+```bash
+git clone https://github.com/yuyonghua/unitree-workspace.git unitree_ws
+cd unitree_ws
+
+# 克隆官方SDK
+./setup.sh --shallow --official-only
+
+# 或使用原有脚本
+cd git/official && ./clone_go2_repos.sh
+cd ../community && ./clone_community.sh
 ```
 
 ### 2. 网络配置

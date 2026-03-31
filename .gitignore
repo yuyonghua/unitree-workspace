@@ -48,3 +48,14 @@ CMakeFiles/
 *.pyo
 *.class
 *.log
+
+# Cloned repositories (use setup.sh to clone)
+git/official/unitree_sdk2/
+git/official/unitree_sdk2_python/
+git/official/unitree_ros2/
+git/official/unitree_ros/
+git/official/unitree_mujoco/
+git/official/unitree_rl_gym/
+git/official/unitree_model/
+git/official/point_lio_unilidar/
+git/community/*/
