@@ -1,0 +1,46 @@
+mode: "real"
+domain_id: 0
+interface: "eth0"  # 真机通过 eth0 接口通信 (根据实际情况可能需要改为 enp3s0 之类的网卡名)
+use_crc: true      # 必须打开
+
+control_dt: 0.02
+standup_time: 2.0
+
+# 默认仿真和真机的关节角度定义是完全一致的，因为底层都是以 [FL, FR, RL, RR] (模型顺序) 来维护的
+default_angles:
+  -  0.1   # FL hip
+  -  0.8   # FL thigh
+  - -1.5   # FL calf
+  - -0.1   # FR
+  -  0.8
+  - -1.5
+  -  0.1   # RL
+  -  1.0
+  - -1.5
+  - -0.1   # RR
+  -  1.0
+  - -1.5
+
+kps: [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+kds: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+
+# !重要: 真机关节索引映射 - 将上述定义的模型顺序 [0:11] 映射到真机 motor_cmd 期望的顺序 (FR, FL, RR, RL)
+# 对应关系: 
+# Model[0..2] (FL) -> Motor[3..5]
+# Model[3..5] (FR) -> Motor[0..2]
+# Model[6..8] (RL) -> Motor[9..11]
+# Model[9..11] (RR) -> Motor[6..8]
+joint2motor_idx: [3, 4, 5, 0, 1, 2, 9, 10, 11, 6, 7, 8]
+
+# 模型路径保持一致
+policy_path: "{PROJECT_ROOT}/models/go2_policy.pt"
+
+# Observation 与 Action
+num_obs: 45
+num_actions: 12
+ang_vel_scale: 0.25
+dof_pos_scale: 1.0
+dof_vel_scale: 0.05
+action_scale: 0.25
+cmd_scale: [3.0, 2.0, 0.5]
+max_cmd: [2.0, 1.0, 2.5]
